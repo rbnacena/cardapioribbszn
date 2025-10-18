@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>App Garçom - RibbsZn</title>
+    <style>
+      :root {
+        --bg: #0e0e0e;
+        --panel: #141414;
+        --muted: #1d1d1d;
+        --card: #222;
+        --accent: #00c853;
+        --danger: #ff4444;
+        --text: #f2f2f2;
+        --warning: #ff9800;
+        --preto: #000; /* Adicionado para uso no botão parcial */
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+      }
+      .app {
+        width: 380px;
+        height: 92vh;
+        background: var(--panel);
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      header {
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: var(--muted);
+        border-bottom: 1px solid #111;
+      }
+      .left-head {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .mesa-btn {
+        background: #333;
+        border: none;
+        color: var(--text);
+        padding: 8px 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+        transition: all 0.18s;
+        font-size: 14px;
+      }
+      .mesa-btn.active {
+        background: var(--accent);
+        color: #012201;
+        transform: translateY(-2px);
+      }
+      .action-btn {
+        background: #222;
+        border: none;
+        color: var(--text);
+        padding: 8px 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 13px;
+      }
+      main {
+        flex: 1;
+        padding: 14px;
+        overflow: auto;
+      }
+      main::-webkit-scrollbar {
+        width: 8px;
+      }
+      main::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 10px;
+      }
+      h2 {
+        text-align: center;
+        margin: 6px 0 14px;
+      }
+      .categoria {
+        margin-bottom: 18px;
+      }
+      .categoria h3 {
+        margin: 0 0 8px;
+        padding: 8px;
+        border-radius: 8px;
+        background: var(--muted);
+        color: var(--accent);
+        font-size: 15px;
+      }
+      .item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 10px;
+        background: var(--card);
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.08s;
+      }
+      .item:hover {
+        background: #2a2a2a;
+        transform: translateY(-2px);
+      }
+      .item .nome {
+        font-size: 15px;
+      }
+      .preco {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .pedido {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        background: var(--muted);
+      }
+      .pedido h3 {
+        margin: 0 0 6px;
+        color: var(--accent);
+      }
+      .pedido-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid #2a2a2a;
+        gap: 12px;
+      }
+      .pedido-item:last-child {
+        border-bottom: none;
+      }
+      .remover {
+        color: var(--danger);
+        cursor: pointer;
+        margin-left: 8px;
+      }
+      footer {
+        background: var(--muted);
+        padding: 12px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #111;
+      }
+      .total {
+        font-weight: 800;
+      }
+      .btn-carrinho {
+        background: var(--accent);
+        color: #021203;
+        border: none;
+        padding: 9px 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.6),
+          rgba(0, 0, 0, 0.75)
+        );
+        z-index: 1000;
+        padding: 18px;
+      }
+      .overlay.show {
+        display: flex;
+      }
+      .modal {
+        width: 100%;
+        max-width: 620px;
+        max-height: 86vh;
+        background: #0f0f0f;
+        border-radius: 12px;
+        overflow: auto;
+        padding: 14px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+      .modal-header h3 {
+        margin: 0;
+        color: var(--accent);
+      }
+      .close-btn {
+        background: #222;
+        border: none;
+        color: var(--text);
+        padding: 6px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .cart-list {
+        margin-top: 12px;
+      }
+      .cart-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 8px;
+        background: var(--card);
+        margin-bottom: 8px;
+      }
+      .cart-left {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .qty {
+        background: #111;
+        padding: 6px 8px;
+        border-radius: 8px;
+        min-width: 40px;
+        text-align: center;
+        font-weight: 700;
+      }
+      .cart-name {
+        font-size: 15px;
+      }
+      .cart-right {
+        text-align: right;
+      }
+      .cart-price {
+        font-weight: 800;
+        color: var(--accent);
+      }
+      .btn-small {
+        background: #222;
+        border: none;
+        color: var(--text);
+        padding: 6px 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-left: 6px;
+      }
+      .modal-footer {
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        flex-direction: column;
+      }
+      .modal-footer .actions {
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+        gap: 8px;
+      }
+      .btn-fechar {
+        background: var(--accent);
+        border: none;
+        color: #021203;
+        font-weight: 800;
+        padding: 10px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      .btn-clear {
+        background: var(--danger);
+        border: none;
+        color: white;
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .mini-overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1100;
+        background: rgba(0, 0, 0, 0.55);
+      }
+      .mini {
+        background: #0d0d0d;
+        padding: 14px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 380px;
+        max-height: 70vh;
+        overflow: auto;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      }
+      .mini label {
+        display: block;
+        font-size: 13px;
+        color: #bbb;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+      .mini input[type="number"],
+      .mini input[type="text"],
+      .mini textarea,
+      .mini select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid #222;
+        background: #111;
+        color: var(--text);
+      }
+      .mini .row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        justify-content: flex-end;
+        align-items: center;
+      }
+      .mini button {
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+      }
+      .mini .ok {
+        background: var(--accent);
+        color: #022201;
+        font-weight: 800;
+      }
+      .mini .cancel {
+        background: #333;
+        color: var(--text);
+      }
+      .mini .checkbox-group {
+        margin-bottom: 16px;
+        padding: 12px;
+        background: var(--card);
+        border-radius: 8px;
+      }
+      .mini .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        padding: 6px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .mini .checkbox-item:hover {
+        background: #2a2a2a;
+      }
+      .mini .checkbox-item input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+      }
+      .mini .checkbox-item.free .preco {
+        color: #bbb;
+      }
+      .mini .checkbox-item.pago .preco {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .mini .checkbox-item.checked {
+        background: var(--muted);
+      }
+      .mini .secao {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid #333;
+      }
+      .mini .secao h4 {
+        margin: 0 0 8px;
+        color: var(--accent);
+        font-size: 14px;
+      }
+      .overview {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .mesa-card {
+        background: var(--card);
+        padding: 12px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      .mesa-card.empty {
+        opacity: 0.6;
+      }
+      .mesa-card h4 {
+        margin: 0 0 6px;
+      }
+      .small {
+        font-size: 13px;
+        color: #bbb;
+      }
+      .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        z-index: 2000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        max-width: 300px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      .toast.show {
+        transform: translateX(0);
+      }
+      .toast.success {
+        background: var(--accent);
+      }
+      .toast.error {
+        background: var(--danger);
+      }
+      .toast.warning {
+        background: var(--warning);
+      }
+      @media (max-width: 420px) {
+        .app {
+          width: 96%;
+          height: 92vh;
+        }
+        .mini {
+          width: 95%;
+        }
+      }
+      .payment-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .payment-options label {
+        display: block;
+        margin-bottom: 0;
+        font-size: 14px;
+      }
+      .payment-row {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #333;
+      }
+      .input-group {
+        margin-bottom: 8px;
+      }
+      .input-group label {
+        font-weight: 600;
+        margin-bottom: 4px;
+        display: block;
+      }
+      .input-group input,
+      .input-group select {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <div class="left-head">
+          <button class="mesa-btn" id="mesa1">Mesa 1</button>
+          <button class="mesa-btn" id="mesa2">Mesa 2</button>
+          <button class="mesa-btn" id="mesa3">Mesa 3</button>
+          <button class="mesa-btn" id="mesa4">Mesa 4</button>
+        </div>
+        <div style="display: flex; gap: 4px">
+          <button class="action-btn" id="btnGeral" title="Visão geral">
+            📊
+          </button>
+          <button class="action-btn" id="btnComanda" title="Ver comanda">
+            🧾
+          </button>
+          <button class="action-btn" id="btnImprimir" title="Imprimir">
+            🖨️
+          </button>
+          <button class="action-btn" id="btnBackup" title="Backup">↻</button>
+        </div>
+      </header>
+      <main id="conteudo">
+        <h2>🍔 Selecione uma mesa para começar o pedido</h2>
+      </main>
+      <footer>
+        <div class="total" id="total">Total: R$ 0,00</div>
+        <button class="btn-carrinho" id="btnVerComanda">🧾 Ver Comanda</button>
+      </footer>
+    </div>
+
+    <div id="overlay" class="overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>🧾 Comanda - Mesa <span id="modalMesa">0</span></h3>
+          <button class="close-btn" id="btnFecharModal">Fechar</button>
+        </div>
+        <div id="cartContent" class="cart-list"></div>
+
+        <div class="modal-footer">
+          <div
+            style="
+              font-weight: 800;
+              width: 100%;
+              text-align: right;
+              margin-bottom: 12px;
+            "
+          >
+            Total: <span id="modalTotal">R$ 0,00</span>
+          </div>
+          <div
+            class="actions"
+            style="
+              justify-content: center;
+              margin-bottom: 15px;
+              border-bottom: 1px solid #333;
+              padding-bottom: 15px;
+            "
+          >
+            <button
+              class="btn-fechar"
+              id="btnEnviarParcial"
+              style="
+                background: var(--warning);
+                color: var(--preto);
+                font-weight: 800;
+                font-size: 14px;
+              "
+            >
+              📢 ENVIAR NOVOS ITENS P/ COZINHA
+            </button>
+          </div>
+
+          <div id="paymentDetails" style="width: 100%">
+            <div class="input-group">
+              <label for="inputNomeCliente">Nome/Comanda:</label>
+              <input
+                type="text"
+                id="inputNomeCliente"
+                placeholder="Ex: Ana, Comanda 10"
+              />
+            </div>
+            <div class="input-group">
+              <label for="selectPagamento">Método de Pagamento:</label>
+              <select id="selectPagamento">
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Cartão">Cartão</option>
+                <option value="Pix">Pix</option>
+                <option value="Anotado">Anotado</option>
+              </select>
+            </div>
+            <div class="input-group" id="trocoContainer" style="display: none">
+              <label for="inputTrocoPara">Troco para (R$):</label>
+              <input
+                type="number"
+                id="inputTrocoPara"
+                min="0"
+                step="0.01"
+                value="0.00"
+              />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn-clear" id="btnLimpar">Limpar Comanda</button>
+            <button class="btn-fechar" id="btnFecharConta">
+              FECHAR CONTA (Finalizar)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="miniOverlay" class="mini-overlay">
+      <div class="mini">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <strong id="miniTitle">Adicionar item</strong>
+          <button class="close-btn" id="btnFecharMini">X</button>
+        </div>
+        <div style="margin-top: 8px">
+          <label>Item</label>
+          <div
+            id="miniItemName"
+            style="font-weight: 700; margin-bottom: 8px"
+          ></div>
+          <div id="ingredientesSection" style="display: none">
+            <div class="secao">
+              <h4>🥬 Ingredientes (Grátis)</h4>
+              <div class="checkbox-group" id="freeIngredients"></div>
+            </div>
+            <div class="secao">
+              <h4>💰 Adicionais Pagos</h4>
+              <div class="checkbox-group" id="paidAdditions"></div>
+            </div>
+          </div>
+          <label>Quantidade</label>
+          <input id="miniQty" type="number" min="1" value="1" />
+          <label style="margin-top: 8px">Observação (opcional)</label>
+          <textarea
+            id="miniObs"
+            rows="2"
+            placeholder="Ex: sem cebola, ponto, etc."
+          ></textarea>
+          <div class="row">
+            <button class="cancel" id="btnCancelar">Cancelar</button>
+            <button class="ok" id="btnAdicionar">Adicionar</button>
+            <div
+              id="precoAdicionais"
+              style="font-weight: 700; color: var(--accent); margin-left: auto"
+            >
+              Adicionais: R$ 0,00
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="overviewOverlay" class="overlay">
+      <div class="modal" style="max-width: 520px">
+        <div class="modal-header">
+          <h3>📊 Visão Geral das Mesas</h3>
+          <button class="close-btn" id="btnFecharOverview">Fechar</button>
+        </div>
+        <div style="margin-top: 10px">
+          <div class="overview" id="overviewList"></div>
+        </div>
+        <div
+          style="
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <div class="small">Total geral:</div>
+          <div style="font-weight: 800" id="overviewTotal">R$ 0,00</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Configurações
+      const KEY = "comandas_ribbszn_v2";
+      const PEDIDOS_KEY = "pedidos"; // Chave que o cozinha.html usa
+      const BACKUP_KEY = "backups_ribbszn";
+      const MESA_ATIVA_KEY = "mesaAtiva_ribbszn";
+
+      let comandas = { 1: [], 2: [], 3: [], 4: [] };
+      let mesaSelecionada = null;
+      let tempAdd = { nome: null, preco: 0, ehHamburguerCostela: false };
+      let adicionaisPreco = 0;
+      let originalMiniContentHTML = null; // Variável para armazenar o HTML original de adicionar item
+
+      // Cardápio
+      const cardapio = {
+        "Hamburgueres da casa": [
+          ["Smash simples", 12, true],
+          ["Smash duplo", 18, true],
+          ["Smash triplo", 25, true],
+          ["Cheese burger simples", 14, true],
+          ["Cheese duplo", 20, true],
+          ["Eggy simples", 15, true],
+          ["Eggy duplo", 20, true],
+          ["Cremoso simples", 20, true],
+          ["Cremoso duplo", 25, true],
+        ],
+        "Costela Bovina": [
+          ["Ribbs simples (tradicional)", 18, true],
+          ["Ribbs duplo", 25, true],
+          ["Ribbs triplo (ou triplo bacon)", 32, true],
+        ],
+        "Batata Frita": [
+          ["P (Pequena)", 8, false],
+          ["M (Média)", 12, false],
+          ["G (Grande) com cheddar e bacon", 20, false],
+        ],
+        Bebidas: [
+          ["Antártica Lata", 5, false],
+          ["Antártica Litro", 8, false],
+          ["Coca Lata", 6, false],
+          ["Coca Litro", 9, false],
+          ["Milk Shake Ninho 300ml", 10, false],
+          ["Milk Shake Ninho 400ml", 12, false],
+        ],
+        "Sucos de Polpa 300ml": [
+          ["Suco de Cajá", 5, false],
+          ["Suco de Graviola", 5, false],
+          ["Suco de Maracujá", 5, false],
+          ["Suco de Morango", 5, false],
+          ["Suco de Uva", 5, false],
+        ],
+      };
+
+      // Ingredientes
+      const ingredientesFree = ["Alface", "Tomate", "Cebola caramelizada"];
+      const ingredientesFreeSmashSimples = [
+        "Cebola caramelizada",
+        "Molho",
+        "Cheddar fatiado",
+      ];
+
+      const adicionaisPagos = [
+        { nome: "Bacon", preco: 4 },
+        { nome: "Ovo", preco: 2 },
+        { nome: "Cream Cheese", preco: 3 },
+      ];
+
+      // Funções utilitárias
+      function salvarDados() {
+        try {
+          localStorage.setItem(KEY, JSON.stringify(comandas));
+          localStorage.setItem(MESA_ATIVA_KEY, mesaSelecionada);
+        } catch (e) {
+          console.error("Erro ao salvar:", e);
+        }
+      }
+
+      function carregarDados() {
+        try {
+          const dados = localStorage.getItem(KEY);
+          if (dados) comandas = JSON.parse(dados);
+          const mesa = localStorage.getItem(MESA_ATIVA_KEY);
+          if (mesa) mesaSelecionada = parseInt(mesa);
+        } catch (e) {
+          console.error("Erro ao carregar:", e);
+        }
+      }
+
+      function mostrarToast(msg, tipo = "success") {
+        const toast = document.createElement("div");
+        toast.className = `toast ${tipo}`;
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add("show"), 100);
+        setTimeout(() => {
+          toast.classList.remove("show");
+          setTimeout(() => toast.remove(), 300);
+        }, 2500);
+      }
+
+      // Funções principais
+      function selecionarMesa(num) {
+        mesaSelecionada = num;
+        document
+          .querySelectorAll(".mesa-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        document.getElementById(`mesa${num}`).classList.add("active");
+        salvarDados();
+        carregarCardapio();
+        atualizarTotal();
+      }
+
+      function carregarCardapio() {
+        if (!mesaSelecionada) return;
+        const main = document.getElementById("conteudo");
+        main.innerHTML = `<h2>🪑 Mesa ${mesaSelecionada}</h2>`;
+
+        for (let cat in cardapio) {
+          const divCat = document.createElement("div");
+          divCat.className = "categoria";
+          divCat.innerHTML = `<h3>${cat}</h3>`;
+
+          cardapio[cat].forEach(([nome, preco, ehHamburguer]) => {
+            const item = document.createElement("div");
+            item.className = "item";
+            item.innerHTML = `<div class="nome">${nome}</div><div class="preco">R$ ${preco.toFixed(
+              2
+            )}</div>`;
+            item.onclick = () => abrirMini(nome, preco, ehHamburguer);
+            divCat.appendChild(item);
+          });
+          main.appendChild(divCat);
+        }
+        mostrarResumo();
+      }
+
+      function abrirMini(nome, preco, ehHamburguer = false) {
+        if (!mesaSelecionada) {
+          mostrarToast("Selecione uma mesa primeiro", "error");
+          return;
+        }
+
+        // Garante que o conteúdo de adição de item seja restaurado
+        const miniContainer = document.querySelector(
+          "#miniOverlay .mini > div:nth-child(2)"
+        );
+        if (
+          originalMiniContentHTML &&
+          miniContainer.innerHTML !== originalMiniContentHTML
+        ) {
+          document.getElementById("miniTitle").textContent = "Adicionar item";
+          miniContainer.innerHTML = originalMiniContentHTML;
+        }
+
+        tempAdd = { nome, preco, ehHamburguerCostela: ehHamburguer };
+        document.getElementById("miniItemName").textContent = nome;
+        document.getElementById("miniQty").value = 1;
+        document.getElementById("miniObs").value = "";
+        adicionaisPreco = 0;
+
+        const section = document.getElementById("ingredientesSection");
+        const free = document.getElementById("freeIngredients");
+        const paid = document.getElementById("paidAdditions");
+
+        if (ehHamburguer) {
+          section.style.display = "block";
+
+          // Lógica para aplicar a lista especial para o Smash simples
+          const ingredientes =
+            nome === "Smash simples"
+              ? ingredientesFreeSmashSimples
+              : ingredientesFree;
+
+          free.innerHTML = ingredientes
+            .map(
+              (ing) =>
+                `<div class="checkbox-item free checked" data-nome="${ing}">
+            <input type="checkbox" checked> <span>${ing}</span>
+          </div>`
+            )
+            .join("");
+
+          paid.innerHTML = adicionaisPagos
+            .map(
+              (add) =>
+                `<div class="checkbox-item pago checked=false" data-nome="${
+                  add.nome
+                }" data-preco="${add.preco}">
+            <input type="checkbox"> <span>${add.nome}</span>
+            <span class="preco">+ R$ ${add.preco.toFixed(2)}</span>
+          </div>`
+            )
+            .join("");
+
+          // Event listeners para checkboxes
+          document
+            .querySelectorAll(
+              "#freeIngredients .checkbox-item, #paidAdditions .checkbox-item"
+            )
+            .forEach((item) => {
+              item.onclick = function (e) {
+                if (e.target.type !== "checkbox") {
+                  this.querySelector('input[type="checkbox"]').click();
+                }
+              };
+              item.querySelector('input[type="checkbox"]').onchange =
+                function () {
+                  this.parentElement.classList.toggle("checked", this.checked);
+                  if (this.parentElement.parentElement.id === "paidAdditions") {
+                    calcularAdicionais();
+                  }
+                };
+            });
+          document.getElementById("btnAdicionar").onclick = confirmarAdd;
+          document.getElementById("btnCancelar").onclick = fecharMini;
+        } else {
+          section.style.display = "none";
+          free.innerHTML = "";
+          paid.innerHTML = "";
+          // Garante que os listeners corretos estejam no lugar
+          document.getElementById("btnAdicionar").onclick = confirmarAdd;
+          document.getElementById("btnCancelar").onclick = fecharMini;
+        }
+
+        document.getElementById("miniOverlay").style.display = "flex";
+        calcularAdicionais();
+      }
+
+      function calcularAdicionais() {
+        adicionaisPreco = 0;
+        document
+          .querySelectorAll("#paidAdditions input:checked")
+          .forEach((cb) => {
+            adicionaisPreco += parseFloat(cb.parentElement.dataset.preco);
+          });
+        document.getElementById(
+          "precoAdicionais"
+        ).textContent = `Adicionais: R$ ${adicionaisPreco.toFixed(2)}`;
+      }
+
+      function confirmarAdd() {
+        const qty = parseInt(document.getElementById("miniQty").value) || 1;
+        const obs = document.getElementById("miniObs").value.trim();
+        const precoItem = tempAdd.preco;
+        const precoAdicionais = adicionaisPreco;
+        const precoFinal = precoItem + precoAdicionais;
+
+        let obsCompleta = obs;
+        let adicionais = [];
+
+        if (tempAdd.ehHamburguerCostela) {
+          const ingredientes = Array.from(
+            document.querySelectorAll("#freeIngredients input:checked")
+          ).map((cb) => cb.parentElement.dataset.nome);
+          adicionais = Array.from(
+            document.querySelectorAll("#paidAdditions input:checked")
+          ).map((cb) => {
+            const item = cb.parentElement;
+            return {
+              nome: item.dataset.nome,
+              preco: parseFloat(item.dataset.preco),
+            };
+          });
+
+          const adicionaisStr = adicionais
+            .map((add) => `${add.nome} (+R$ ${add.preco.toFixed(2)})`)
+            .join(", ");
+
+          if (ingredientes.length) {
+            obsCompleta = obsCompleta
+              ? `${obsCompleta}; Ingredientes: ${ingredientes.join(", ")}`
+              : `Ingredientes: ${ingredientes.join(", ")}`;
+          }
+          if (adicionais.length) {
+            obsCompleta = obsCompleta
+              ? `${obsCompleta}; Adicionais Pagos: ${adicionaisStr}`
+              : `Adicionais Pagos: ${adicionaisStr}`;
+          }
+        }
+
+        for (let i = 0; i < qty; i++) {
+          comandas[mesaSelecionada].push({
+            nome: tempAdd.nome,
+            preco: precoFinal,
+            obs: obsCompleta || null,
+            id: Date.now() + Math.random(),
+            timestamp: Date.now(),
+            precoBase: precoItem,
+            adicionaisPagos: adicionais,
+            enviado: false, // <-- NOVO: Marca como não enviado
+          });
+        }
+
+        salvarDados();
+        atualizarTotal();
+        mostrarResumo();
+        fecharMini();
+        mostrarToast("Item adicionado! (Não enviado p/ cozinha)");
+      }
+
+      function fecharMini() {
+        document.getElementById("miniOverlay").style.display = "none";
+      }
+
+      function atualizarTotal() {
+        if (!mesaSelecionada) {
+          document.getElementById("total").textContent = "Total: R$ 0,00";
+          return;
+        }
+        const total = comandas[mesaSelecionada].reduce(
+          (s, i) => s + i.preco,
+          0
+        );
+        document.getElementById(
+          "total"
+        ).textContent = `Total: R$ ${total.toFixed(2)}`;
+
+        // Atualiza campos no modal de comanda
+        document.getElementById("modalTotal").textContent = `R$ ${total.toFixed(
+          2
+        )}`;
+        document.getElementById("inputTrocoPara").min = total.toFixed(2);
+      }
+
+      function mostrarResumo() {
+        if (!mesaSelecionada) return;
+        const main = document.getElementById("conteudo");
+        const pedido = comandas[mesaSelecionada];
+        let existing = main.querySelector(".pedido");
+        if (existing) existing.remove();
+        if (!pedido.length) return;
+
+        const div = document.createElement("div");
+        div.className = "pedido";
+        div.innerHTML = "<h3>🧾 Pedido Atual</h3>";
+
+        const agrupado = {};
+        pedido.forEach((item) => {
+          // Usa preço, observação E STATUS DE ENVIO como chave para agrupamento
+          const key =
+            item.nome +
+            "||" +
+            item.preco.toFixed(2) +
+            "||" +
+            (item.obs || "") +
+            "||" +
+            item.enviado;
+          if (!agrupado[key]) {
+            agrupado[key] = { ...item, qty: 0 };
+          }
+          agrupado[key].qty++;
+        });
+
+        Object.values(agrupado).forEach((item) => {
+          const linha = document.createElement("div");
+          linha.className = "pedido-item";
+          // Recria a chave para o onclick de remoção de grupo
+          const remKey =
+            item.nome +
+            "||" +
+            item.preco.toFixed(2) +
+            "||" +
+            (item.obs || "") +
+            "||" +
+            item.enviado;
+          const status = item.enviado ? " (Enviado)" : "";
+          linha.innerHTML = `
+          <div>
+            <span style="font-weight:700">${item.qty}x</span> ${
+            item.nome
+          }${status}
+            ${item.obs ? `<br><small>${item.obs}</small>` : ""}
+          </div>
+          <div style="text-align:right">
+            R$ ${(item.preco * item.qty).toFixed(2)}
+            <span class="remover" onclick="removerGrupo('${remKey}')"> ✖</span>
+          </div>
+        `;
+          div.appendChild(linha);
+        });
+        main.appendChild(div);
+      }
+
+      function removerGrupo(key) {
+        // A chave agora inclui nome, preço, obs e status de envio.
+        const parts = key.split("||");
+        const [nome, precoStr, obs, enviadoStr] = parts;
+
+        const obsFinal = obs === "" ? null : obs;
+        const precoFinal = parseFloat(precoStr);
+        const enviadoFinal = enviadoStr === "true";
+
+        // Remove todos os itens que correspondem à chave completa
+        comandas[mesaSelecionada] = comandas[mesaSelecionada].filter(
+          (i) =>
+            !(
+              i.nome === nome &&
+              i.preco === precoFinal &&
+              (i.obs || "") === (obsFinal || "") &&
+              i.enviado === enviadoFinal
+            )
+        );
+
+        salvarDados();
+        atualizarTotal();
+        mostrarResumo();
+        renderModal(); // Atualiza o modal de comanda se estiver aberto
+      }
+
+      // NOVO: Envia APENAS os itens que ainda não foram para a cozinha
+      function enviarPedidosNaoEnviados() {
+        const pedidoCompleto = comandas[mesaSelecionada];
+        const novosItens = pedidoCompleto.filter((item) => !item.enviado);
+        const nomeCliente =
+          document.getElementById("inputNomeCliente").value.trim() ||
+          `Mesa ${mesaSelecionada}`;
+
+        if (novosItens.length === 0) {
+          mostrarToast(
+            "Não há novos itens para enviar para a cozinha.",
+            "warning"
+          );
+          return;
+        }
+
+        // Agrupar APENAS os novos itens
+        const agrupado = {};
+        novosItens.forEach((item) => {
+          const key =
+            item.nome + "||" + item.preco.toFixed(2) + "||" + (item.obs || "");
+          if (!agrupado[key]) {
+            agrupado[key] = { ...item, qty: 0 };
+          }
+          agrupado[key].qty++;
+        });
+
+        const itensParaCozinha = Object.values(agrupado).map((item) => {
+          let str = `${item.qty}x ${item.nome}`;
+          if (item.obs) str += ` (${item.obs})`;
+          return str;
+        });
+
+        // Formato esperado pelo cozinha.html
+        const novoPedido = {
+          id: Date.now().toString(),
+          nomeCliente: nomeCliente,
+          itens: itensParaCozinha, // Apenas os novos itens
+          total: novosItens.reduce((s, i) => s + i.preco, 0).toFixed(2), // Total apenas dos novos itens
+          codigoPedido: `M${mesaSelecionada}-${Date.now()
+            .toString()
+            .slice(-4)}`,
+          pagamentos: null, // Não é pagamento final
+          opcaoAtendimento: `Mesa ${mesaSelecionada} - NOVO PEDIDO`,
+          status: "pendente",
+          timestamp: Date.now(),
+          mesa: mesaSelecionada,
+        };
+
+        // 1. Carregar pedidos existentes
+        const pedidosCozinha = JSON.parse(
+          localStorage.getItem(PEDIDOS_KEY) || "[]"
+        );
+
+        // 2. Adicionar o novo pedido
+        pedidosCozinha.push(novoPedido);
+
+        // 3. Salvar de volta
+        localStorage.setItem(PEDIDOS_KEY, JSON.stringify(pedidosCozinha));
+
+        // 4. Marcar os itens como enviados na comanda local
+        comandas[mesaSelecionada].forEach((item) => {
+          if (!item.enviado) {
+            item.enviado = true;
+          }
+        });
+
+        salvarDados();
+        mostrarResumo(); // Atualiza o resumo no cardápio principal
+        renderModal(); // Atualiza a lista no modal
+        mostrarToast(
+          `Novos itens (${novosItens.length} no total) enviados para a cozinha!`
+        );
+      }
+
+      // NOVO: Apenas finaliza a conta e limpa a mesa
+      function fecharContaFinal() {
+        const pedido = comandas[mesaSelecionada];
+        const nomeCliente =
+          document.getElementById("inputNomeCliente").value.trim() ||
+          `Mesa ${mesaSelecionada}`;
+        const metodoPagamento =
+          document.getElementById("selectPagamento").value;
+        const total = pedido.reduce((s, i) => s + i.preco, 0);
+
+        if (pedido.length === 0) {
+          mostrarToast("Comanda vazia. Não há nada para fechar.", "warning");
+          return;
+        }
+
+        let troco = 0;
+        if (metodoPagamento === "Dinheiro") {
+          const trocoPara = parseFloat(
+            document.getElementById("inputTrocoPara").value || 0
+          );
+          if (trocoPara < total) {
+            if (
+              !confirm(
+                `O valor de R$ ${trocoPara.toFixed(
+                  2
+                )} é menor que o total de R$ ${total.toFixed(
+                  2
+                )}. Fechar conta mesmo assim?`
+              )
+            ) {
+              return;
+            }
+          }
+          troco = trocoPara > total ? trocoPara - total : 0;
+        }
+
+        // Neste ponto, você pode salvar os detalhes do fechamento em um localStorage
+        // diferente (ex: 'historico_caixa') para fins de relatório.
+
+        comandas[mesaSelecionada] = [];
+        salvarDados();
+        carregarCardapio();
+        fecharModal();
+        mostrarToast(
+          `Conta de ${nomeCliente} finalizada com sucesso! Total: R$ ${total.toFixed(
+            2
+          )}. ${
+            metodoPagamento === "Dinheiro" && troco > 0
+              ? `Troco: R$ ${troco.toFixed(2)}`
+              : ""
+          }`
+        );
+      }
+
+      // Modais
+      function abrirModal() {
+        if (!mesaSelecionada)
+          return mostrarToast("Selecione uma mesa", "error");
+
+        // Pré-preenche o campo nome do cliente com o nome da mesa
+        document.getElementById(
+          "inputNomeCliente"
+        ).value = `Mesa ${mesaSelecionada}`;
+
+        renderModal();
+        document.getElementById("modalMesa").textContent = mesaSelecionada;
+        document.getElementById("overlay").classList.add("show");
+      }
+
+      function fecharModal() {
+        document.getElementById("overlay").classList.remove("show");
+      }
+
+      function renderModal() {
+        const container = document.getElementById("cartContent");
+        const pedido = comandas[mesaSelecionada];
+        const total = pedido.reduce((s, i) => s + i.preco, 0);
+
+        const btnEnviar = document.getElementById("btnEnviarParcial");
+        const novosItens = pedido.filter((item) => !item.enviado).length;
+
+        if (!pedido.length) {
+          container.innerHTML =
+            '<div style="padding:12px;color:#bbb">Comanda vazia</div>';
+          document.getElementById("modalTotal").textContent = "R$ 0,00";
+          document.getElementById("btnFecharConta").disabled = true;
+          btnEnviar.style.display = "none";
+          return;
+        }
+
+        document.getElementById("btnFecharConta").disabled = false;
+        btnEnviar.style.display = "block";
+        btnEnviar.textContent =
+          novosItens > 0
+            ? `📢 ENVIAR ${novosItens} ITENS NOVOS P/ COZINHA`
+            : `✅ Sem novos itens para enviar`;
+        btnEnviar.disabled = novosItens === 0;
+
+        const agrupado = {};
+        pedido.forEach((item) => {
+          // Usa nome, preço, observação E STATUS DE ENVIO como chave para agrupamento
+          const key =
+            item.nome +
+            "||" +
+            item.preco.toFixed(2) +
+            "||" +
+            (item.obs || "") +
+            "||" +
+            item.enviado;
+          if (!agrupado[key]) agrupado[key] = { ...item, qty: 0 };
+          agrupado[key].qty++;
+        });
+
+        container.innerHTML = Object.values(agrupado)
+          .map((item) => {
+            const remKey =
+              item.nome +
+              "||" +
+              item.preco.toFixed(2) +
+              "||" +
+              (item.obs || "") +
+              "||" +
+              item.enviado;
+            const status = item.enviado
+              ? ' <span style="color:#00c853">(Enviado)</span>'
+              : ' <span style="color:#ff9800">(Novo)</span>';
+            return `
+                    <div class="cart-row">
+                      <div class="cart-left">
+                        <div class="qty">${item.qty}</div>
+                        <div>${item.nome}${status}${
+              item.obs ? "<br><small>" + item.obs + "</small>" : ""
+            }</div>
+                      </div>
+                      <div class="cart-right">
+                        <div class="cart-price">R$ ${(
+                          item.preco * item.qty
+                        ).toFixed(2)}</div>
+                        <button class="btn-small" onclick="removerGrupo('${remKey}')">Remover</button>
+                      </div>
+                    </div>
+                `;
+          })
+          .join("");
+
+        document.getElementById("modalTotal").textContent = `R$ ${total.toFixed(
+          2
+        )}`;
+      }
+
+      // ====================================================================
+      // ALTERAÇÃO AQUI: Substitui o alert/confirm do navegador por modal estilizado
+      // ====================================================================
+
+      let confirmAction = null;
+
+      function abrirConfirmacaoLimpar() {
+        if (!mesaSelecionada) return;
+
+        const miniOverlay = document.getElementById("miniOverlay");
+        const mini = miniOverlay.querySelector(".mini");
+        const miniTitle = document.getElementById("miniTitle");
+        // O div de conteúdo (segundo filho do mini)
+        const miniContentContainer = mini.querySelector("div:nth-child(2)");
+
+        // Armazena o HTML original de adicionar item (se ainda não estiver)
+        if (!originalMiniContentHTML) {
+          originalMiniContentHTML = miniContentContainer.innerHTML;
+        }
+
+        miniTitle.textContent = "⚠️ Confirmar Limpeza de Comanda";
+        miniContentContainer.innerHTML = `
+              <p style="margin-top: 10px; font-weight: 500; color: var(--text);">
+                  Deseja LIMPAR a comanda da Mesa ${mesaSelecionada}?
+                  <br><br>
+                  <strong style="color: var(--danger);">Isso apagará o histórico e NÃO enviará o pedido para a cozinha.</strong>
+              </p>
+              <div class="row" style="margin-top: 20px; justify-content: space-between;">
+                  <button class="cancel" id="btnConfirmarCancel">Não, Cancelar</button>
+                  <button class="ok" id="btnConfirmarOk" style="background: var(--danger); color: white; font-weight: 700;">Sim, Limpar Comanda</button>
+              </div>
+          `;
+
+        // Ação que será executada se o usuário confirmar
+        confirmAction = function () {
+          comandas[mesaSelecionada] = [];
+          salvarDados();
+          carregarCardapio();
+          fecharMini(); // Fecha o modal de confirmação
+          fecharModal(); // Fecha o modal principal (Comanda) se estiver aberto
+          mostrarToast(`Comanda da Mesa ${mesaSelecionada} limpa.`);
+        };
+
+        // Adiciona os listeners para o novo conteúdo
+        document.getElementById("btnConfirmarOk").onclick = () => {
+          if (confirmAction) confirmAction();
+          // A próxima chamada a abrirMini() restaurará o conteúdo original.
+        };
+        document.getElementById("btnConfirmarCancel").onclick = fecharMini;
+        document.getElementById("btnFecharMini").onclick = fecharMini; // Garante que o X feche
+
+        miniOverlay.style.display = "flex";
+      }
+
+      function limparMesa() {
+        if (!mesaSelecionada) return;
+
+        // Chamada ao novo modal estilizado ao invés de window.confirm
+        abrirConfirmacaoLimpar();
+      }
+
+      // ====================================================================
+      // FIM DA ALTERAÇÃO
+      // ====================================================================
+
+      // Inicialização
+      document.addEventListener("DOMContentLoaded", function () {
+        carregarDados();
+
+        // Armazena o HTML original do conteúdo do mini-modal de adição de item
+        // É importante fazer isso APÓS o DOM carregar e antes que qualquer outra função altere o mini-overlay
+        const miniContentContainer = document.querySelector(
+          "#miniOverlay .mini > div:nth-child(2)"
+        );
+        originalMiniContentHTML = miniContentContainer.innerHTML;
+
+        // Event listeners
+        document.getElementById("mesa1").onclick = () => selecionarMesa(1);
+        document.getElementById("mesa2").onclick = () => selecionarMesa(2);
+        document.getElementById("mesa3").onclick = () => selecionarMesa(3);
+        document.getElementById("mesa4").onclick = () => selecionarMesa(4);
+
+        document.getElementById("btnComanda").onclick = abrirModal;
+        document.getElementById("btnVerComanda").onclick = abrirModal;
+        document.getElementById("btnGeral").onclick = () => {
+          document.getElementById("overviewOverlay").classList.add("show");
+        };
+        document.getElementById("btnFecharModal").onclick = fecharModal;
+
+        // Mantém a função fecharMini no 'X' para o modal de adição
+        document.getElementById("btnFecharMini").onclick = fecharMini;
+
+        // Estes dois são reatribuídos dentro de abrirMini() e abrirConfirmacaoLimpar()
+        // document.getElementById("btnCancelar").onclick = fecharMini;
+        // document.getElementById("btnAdicionar").onclick = confirmarAdd;
+
+        document.getElementById("btnLimpar").onclick = limparMesa; // Modificado para chamar a função que usa o modal estilizado
+
+        // NOVO: Event listener para envio parcial
+        document.getElementById("btnEnviarParcial").onclick =
+          enviarPedidosNaoEnviados;
+        // NOVO: Event listener para fechar a conta
+        document.getElementById("btnFecharConta").onclick = fecharContaFinal;
+
+        // Lógica de Troco
+        document.getElementById("selectPagamento").onchange = function () {
+          document.getElementById("trocoContainer").style.display =
+            this.value === "Dinheiro" ? "block" : "none";
+        };
+
+        // Selecionar mesa inicial
+        if (mesaSelecionada && comandas[mesaSelecionada]?.length) {
+          selecionarMesa(mesaSelecionada);
+        } else {
+          selecionarMesa(1);
+        }
+
+        // Atalhos
+        document.addEventListener("keydown", (e) => {
+          if (e.key >= "1" && e.key <= "4") {
+            selecionarMesa(parseInt(e.key));
+          }
+          if (e.key === "Escape") {
+            fecharMini();
+            fecharModal();
+          }
+        });
+
+        // Garante que os botões de adicionar/cancelar tenham os listeners corretos na inicialização (Estado padrão)
+        document.getElementById("btnAdicionar").onclick = confirmarAdd;
+        document.getElementById("btnCancelar").onclick = fecharMini;
+      });
+    </script>
+  </body>
+</html>

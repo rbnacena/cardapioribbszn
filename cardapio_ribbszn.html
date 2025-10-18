@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cardápio Totem RibbsZn</title>
+    <style>
+      :root {
+        --preto: #000;
+        --branco: #f2f2f2;
+        --cinza: #b3b3b3;
+        --amarelo: #ffd500;
+        --vermelho: #ff0000;
+        --accent: #ff4500;
+      }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #000;
+        color: #000;
+        overflow-x: hidden;
+        background-image: url("./img/fundo.png");
+        background-size: cover;
+        background-attachment: fixed;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        touch-action: manipulation;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      .start-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1500;
+        transition: opacity 0.5s ease;
+      }
+      .start-screen img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .start-screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      body.start-active main,
+      body.start-active header,
+      body.start-active footer {
+        display: none;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 20px;
+        background: #000;
+        color: #fff;
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 16px;
+        color: #ffd500;
+      }
+      .sessao-topo {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin: 12px 0;
+        padding: 0 10px;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+      }
+      .sessao-topo button {
+        background: #fff;
+        color: #000;
+        border-radius: 10px;
+        border: none;
+        padding: 12px 20px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 18px;
+        min-width: 140px;
+        touch-action: manipulation;
+      }
+      .sessao-topo button.active {
+        background-color: var(--vermelho);
+        color: white;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+        transform: translateY(-2px);
+      }
+      .cardapio {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 20px;
+        padding: 15px;
+        overflow-x: auto;
+      }
+      .cardapio::-webkit-scrollbar {
+        height: 10px;
+        background-color: transparent;
+      }
+      .cardapio::-webkit-scrollbar-track {
+        background: #0a0a08;
+        border-radius: 5px;
+      }
+      .cardapio::-webkit-scrollbar-thumb {
+        background: #e2d40e;
+        border-radius: 5px;
+        border: 2px solid #ffd500;
+      }
+      .card {
+        background: #fff;
+        color: #000;
+        width: 200px;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+        flex: 0 0 auto;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+      }
+      .card:active {
+        transform: scale(0.995);
+      }
+      .card img {
+        width: 200px;
+        height: 100px;
+        background: #000;
+        margin-bottom: 10px;
+        border-radius: 6px;
+        object-fit: cover;
+      }
+      .card h3 {
+        margin: 5px 0;
+        font-size: 18px;
+      }
+      .card p.descricao {
+        font-size: 13px;
+        color: #504444;
+        height: 40px;
+        overflow: hidden;
+      }
+      .options-row {
+        display: flex;
+        justify-content: space-around;
+        gap: 5px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      .small-option {
+        flex: 1;
+        text-align: center;
+        margin: 5px 0;
+      }
+      .small-option p:first-child {
+        font-weight: bold;
+        margin: 0;
+      }
+      .btn {
+        padding: 6px 12px;
+        font-size: 14px;
+        background: #ffd500;
+        color: #000;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+        transition: background 0.15s, transform 0.08s;
+        touch-action: manipulation;
+      }
+      .btn:hover {
+        background: #ffc700;
+        transform: scale(1.03);
+      }
+      footer {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: 90%;
+        max-width: 540px;
+        background: #fff;
+        padding: 10px 20px;
+        box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.35);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-radius: 12px 12px 0 0;
+        transition: max-height 0.36s ease-in-out, transform 0.24s ease;
+        min-height: 56px;
+        max-height: 60px;
+        z-index: 1200;
+        overflow: hidden;
+      }
+      footer.expanded {
+        max-height: 85vh;
+      }
+      #toggleCart {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        color: #000;
+        touch-action: manipulation;
+        padding: 8px;
+      }
+      #cartItems {
+        text-align: center;
+        width: 100%;
+        margin: 8px 0;
+        padding: 6px 0;
+        overflow-y: auto;
+        max-height: 40vh;
+      }
+      #cartItems p {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 8px 0;
+        font-size: 16px;
+        padding: 4px 6px;
+        border-radius: 6px;
+      }
+      .removeBtn {
+        background: red;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        padding: 8px 10px;
+        font-size: 14px;
+        min-width: 44px;
+        min-height: 40px;
+        touch-action: manipulation;
+      }
+      #paymentBtn,
+      #clearCartBtn {
+        padding: 12px 18px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 18px;
+        min-height: 52px;
+      }
+      #paymentBtn {
+        background: var(--vermelho);
+        color: #fff;
+        width: 48%;
+      }
+      #clearCartBtn {
+        background: var(--preto);
+        color: #fff;
+        width: 48%;
+      }
+      .backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(6px);
+        z-index: 1290;
+      }
+      .backdrop.show {
+        display: block;
+      }
+      .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        color: #000;
+        padding: 20px;
+        border-radius: 12px;
+        z-index: 1300;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+        transition: transform 0.18s ease, opacity 0.18s ease;
+        max-width: 95%;
+      }
+      .popup.show {
+        display: block;
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+      .popup .closePopup,
+      .popup .close-btn {
+        position: absolute;
+        right: 12px;
+        top: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        color: var(--vermelho);
+        background: none;
+        border: none;
+        font-size: 16px;
+      }
+      #popupCustom {
+        width: 90vw;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+      #popupCustom::-webkit-scrollbar {
+        width: 8px;
+      }
+      #popupCustom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+      #popupCustom::-webkit-scrollbar-thumb {
+        background: var(--amarelo);
+        border-radius: 4px;
+      }
+      #popupPayment {
+        width: 380px;
+        max-width: 94%;
+        text-align: center;
+        padding: 18px;
+      }
+      .pay-methods {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .pay-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-radius: 10px;
+        padding: 12px 14px;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        justify-content: center;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+      }
+      .pay-btn svg {
+        width: 34px;
+        height: 34px;
+      }
+      .pay-pix {
+        background: linear-gradient(90deg, #00c853, #00e676);
+        color: #fff;
+      }
+      .pay-card {
+        background: linear-gradient(90deg, #3b3b98, #5b2c6f);
+        color: #fff;
+      }
+      .pay-cash {
+        background: linear-gradient(90deg, #f9a825, #ffb300);
+        color: #000;
+      }
+      #popupDividirPagamento {
+        width: 420px;
+        max-width: 94%;
+        text-align: center;
+        padding: 18px;
+        border-radius: 14px;
+      }
+      #popupDividirPagamento h2 {
+        margin: 0 0 8px 0;
+      }
+      #popupDividirPagamento select,
+      #popupDividirPagamento input[type="number"] {
+        padding: 10px;
+        border-radius: 8px;
+        border: 2px solid var(--amarelo);
+        font-size: 18px;
+        width: 90%;
+        margin: 8px 0;
+      }
+      #inputsDivisao .rowDiv {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+      }
+      #inputsDivisao .rowDiv label {
+        min-width: 120px;
+        text-align: left;
+        margin-left: 6px;
+      }
+      #faltandoValor {
+        font-size: 16px;
+        margin-top: 8px;
+      }
+      #dividirKeypad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 12px;
+        justify-items: center;
+      }
+      .key-btn {
+        width: 72px;
+        height: 64px;
+        border-radius: 10px;
+        background: #000;
+        color: #fff;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+      }
+      .key-btn:active {
+        transform: scale(0.98);
+      }
+      #popupNome {
+        width: 680px;
+        max-width: 95%;
+        max-height: 85vh;
+        overflow: auto;
+        text-align: center;
+        border-radius: 18px;
+        padding: 24px;
+      }
+      #inputNome {
+        width: 88%;
+        font-size: 22px;
+        padding: 12px 14px;
+        border: 2px solid var(--amarelo);
+        border-radius: 10px;
+        text-align: center;
+      }
+      #keyboard {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+        justify-items: center;
+        grid-template-columns: repeat(10, 1fr);
+      }
+      #keyboard button {
+        width: 56px;
+        height: 56px;
+        font-size: 20px;
+        border-radius: 10px;
+        background: #000;
+        color: #fff;
+        border: none;
+        font-weight: bold;
+      }
+      #keyboard button.space {
+        grid-column: span 3;
+        width: 180px;
+      }
+      #keyboard button.backspace {
+        background: var(--accent);
+        width: 110px;
+      }
+      #popupTroco {
+        width: 420px;
+        max-width: 94%;
+        text-align: center;
+        border-radius: 14px;
+        padding: 20px;
+      }
+      #trocoKeyboard {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+      }
+      #trocoKeyboard button {
+        width: 72px;
+        height: 64px;
+        border-radius: 10px;
+        background: #000;
+        color: #fff;
+        border: none;
+        font-size: 20px;
+      }
+      #popupResumoPedido {
+        width: 420px;
+        max-width: 94%;
+        text-align: left;
+        padding: 18px;
+        border-radius: 12px;
+      }
+      .small-note {
+        font-size: 13px;
+        color: #666;
+        margin-top: 6px;
+        text-align: center;
+      }
+      .hidden {
+        display: none !important;
+      }
+      @media (max-width: 800px) {
+        .card {
+          width: 44%;
+        }
+        #inputNome {
+          font-size: 20px;
+        }
+      }
+      @media (max-width: 420px) {
+        .card {
+          width: 90%;
+        }
+        header {
+          font-size: 16px;
+          padding: 10px;
+        }
+        .sessao-topo button {
+          min-width: 100px;
+          font-size: 16px;
+          padding: 10px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="startScreen" class="start-screen">
+      <img src="./img/toque_para_iniciar.png" alt="Toque para Iniciar" />
+    </div>
+    <div id="backdrop" class="backdrop"></div>
+    <main>
+      <header>
+        <div class="header-left">
+          <div style="font-size: 18px; color: var(--amarelo)" id="relogio">
+            --:--
+          </div>
+          <div style="font-size: 14px; color: #fff; opacity: 0.85">
+            #Pedeoteu
+          </div>
+        </div>
+        <div style="text-align: center; font-size: 22px; font-weight: 900">
+          RibbsZn
+        </div>
+        <div class="header-right">
+          <div id="statusOnline">● Online</div>
+        </div>
+      </header>
+      <div class="sessao-topo" id="sessao-topo">
+        <button class="active" onclick="showCategory('Promoções',this)">
+          Promoções
+        </button>
+        <button onclick="showCategory('Artesanais',this)">Artesanais</button>
+        <button onclick="showCategory('Costela Bovina',this)">
+          Costela Bovina
+        </button>
+        <button onclick="showCategory('Batata Frita',this)">Batatas</button>
+        <button onclick="showCategory('Bebidas',this)">Bebidas</button>
+        <button onclick="showCategory('Milk Shakes',this)">Milk Shakes</button>
+      </div>
+      <div class="cardapio" id="cardapio"></div>
+      <div id="popupCustom" class="popup" aria-hidden="true">
+        <button class="closePopup" onclick="closePopupCustom()">X</button>
+        <h3 id="popupCustomTitle">Personalize seu item</h3>
+        <div id="popupQuestion"></div>
+        <div id="popupResumo"></div>
+        <div style="text-align: center; margin-top: 10px">
+          <button
+            class="btn"
+            id="confirmCustomBtn"
+            onclick="confirmPopupCustom()"
+          >
+            Adicionar ao carrinho
+          </button>
+        </div>
+      </div>
+      <div id="popupResumoPedido" class="popup" aria-hidden="true">
+        <button class="closePopup" onclick="closeAllPopups()">X</button>
+        <h3>Resumo do Pedido</h3>
+        <div id="resumoItens" style="margin-top: 8px"></div>
+        <p style="text-align: center; margin-top: 12px">
+          <button class="btn" onclick="openPaymentPopup()">
+            Ir para pagamento
+          </button>
+        </p>
+      </div>
+      <div id="popupPayment" class="popup" aria-hidden="true">
+        <button class="closePopup" onclick="closePaymentPopup()">X</button>
+        <h3>Escolha a forma de pagamento</h3>
+        <div class="pay-methods" role="list">
+          <button
+            class="pay-btn pay-pix"
+            onclick="openPixPopup()"
+            aria-label="PIX"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 12h18"
+                stroke="#fff"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M12 3v18"
+                stroke="#fff"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            PIX — Pagamento instantâneo
+          </button>
+          <button
+            class="pay-btn pay-card"
+            onclick="selectSinglePayment('Cartão')"
+            aria-label="Cartão"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="2"
+                y="5"
+                width="20"
+                height="14"
+                rx="2"
+                stroke="#fff"
+                stroke-width="2"
+              />
+              <path d="M2 10h20" stroke="#fff" stroke-width="2" />
+            </svg>
+            Cartão — Crédito / Débito
+          </button>
+          <button
+            class="pay-btn pay-cash"
+            onclick="selectSinglePayment('Dinheiro')"
+            aria-label="Dinheiro"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="2"
+                y="6"
+                width="20"
+                height="12"
+                rx="2"
+                stroke="#000"
+                stroke-width="1.6"
+              />
+              <circle cx="12" cy="12" r="2.6" fill="#000" />
+            </svg>
+            Dinheiro — Precisa de troco
+          </button>
+          <button
+            class="pay-btn pay-cash"
+            onclick="selectSinglePayment('Dinheiro Exato')"
+            aria-label="Dinheiro Sem Troco"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="2"
+                y="6"
+                width="20"
+                height="12"
+                rx="2"
+                stroke="#000"
+                stroke-width="1.6"
+              />
+              <circle cx="12" cy="12" r="2.6" fill="#000" />
+            </svg>
+            Dinheiro — Não precisa de troco
+          </button>
+          <button class="btn" onclick="abrirPopupDividirPagamento()">
+            Dividir pagamento
+          </button>
+        </div>
+        <div id="splitPaymentSection" class="" style="display: none">
+          <h4 style="margin-top: 12px">Dividir Pagamento (até 4 pessoas)</h4>
+          <label
+            >Quantas pessoas vão pagar?
+            <select id="numPayers" onchange="setupSplitPayment()">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </label>
+          <div id="splitPaymentInputs"></div>
+          <p id="splitTotal">Total inserido: R$ 0.00</p>
+          <p id="splitError" style="color: red; display: none">
+            ⚠️ A soma dos valores deve ser igual a R$
+            <span id="orderTotal"></span>
+          </p>
+          <button
+            id="confirmSplitBtn"
+            class="btn"
+            onclick="confirmSplitPayment()"
+            style="margin-top: 8px"
+          >
+            Confirmar Divisão
+          </button>
+        </div>
+      </div>
+      <div id="popupDividirPagamento" class="popup" aria-hidden="true">
+        <button class="close-btn" onclick="closePopupDividir()">X</button>
+        <h2>Dividir Pagamento</h2>
+        <div
+          id="valorTotalDivisao"
+          style="font-size: 1.2em; margin-bottom: 10px; font-weight: bold"
+        >
+          Total: R$ 0.00
+        </div>
+        <label style="display: block; margin-bottom: 6px"
+          >Quantas pessoas vão pagar?</label
+        >
+        <select
+          id="quantidadePessoas"
+          onchange="gerarCamposDivisao()"
+          style="
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid var(--amarelo);
+            font-size: 18px;
+          "
+        >
+          <option value="">Selecione...</option>
+          <option value="1">1 pessoa</option>
+          <option value="2">2 pessoas</option>
+          <option value="3">3 pessoas</option>
+          <option value="4">4 pessoas</option>
+        </select>
+        <div id="inputsDivisao" style="margin-top: 15px"></div>
+        <div id="dividirKeypad" style="display: none">
+          <button class="key-btn" data-key="7">7</button>
+          <button class="key-btn" data-key="8">8</button>
+          <button class="key-btn" data-key="9">9</button>
+          <button class="key-btn" data-key="4">4</button>
+          <button class="key-btn" data-key="5">5</button>
+          <button class="key-btn" data-key="6">6</button>
+          <button class="key-btn" data-key="1">1</button>
+          <button class="key-btn" data-key="2">2</button>
+          <button class="key-btn" data-key="3">3</button>
+          <button class="key-btn" data-key="0">0</button>
+          <button class="key-btn" data-key=".">.</button>
+          <button class="key-btn" data-key="⌫">⌫</button>
+        </div>
+        <div id="faltandoValor" style="margin-top: 10px; font-weight: bold">
+          Faltando R$ 0.00
+        </div>
+        <div style="text-align: center; margin-top: 12px">
+          <button
+            id="confirmarDivisao"
+            class="btn"
+            disabled
+            onclick="confirmarDivisao()"
+          >
+            Confirmar Divisão
+          </button>
+        </div>
+      </div>
+      <div
+        id="popupPix"
+        class="popup"
+        aria-hidden="true"
+        style="width: 380px; max-width: 90%; text-align: center; padding: 20px"
+      >
+        <button class="closePopup" onclick="closePix()">X</button>
+        <h3>Pagamento via PIX</h3>
+        <img
+          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAMAAABjG2vPAAAAMFBMVEX///8AAAD39/f5+fn09PTx8fH4+Pjq6urv7+/q6uq3t7fR0dG/v7+qqqrk5OTb29t1dXUzy1a0AAABc0lEQVR4nO3bMQ6DIBBFUQKkm5D//z3UZAswEzgG/Zonb8mVt2yNgQAAAAAAAAAAAAAAAJ6ZT7bTtE8vV/OL2ONt5o5iU8X1GOrLJq6NHY1PuqxxHcTjmq3R9c9kx9e1OfTr8G7R/d0J3P9zHfqWl6WOS4fS95d9+dLj0d+XfbnQ4w5yYXbzu8ms7l38b3nz2r0fGO9M/36PfI/3X6I8/fmM/1T2zqF6Z7lZfblZvbq6vHVn2q6rPU5HevdzpZ/u9/wAAAAAAAAAAAAAAwMU3A1Kgn95vH6EyAAAAAElFTkSuQmCC"
+          alt="QR Code PIX"
+          style="
+            width: 300px;
+            height: 300px;
+            margin: 10px auto;
+            display: block;
+            border-radius: 12px;
+            object-fit: contain;
+            background: #f9f9f9;
+          "
+        />
+        <button
+          class="btn"
+          onclick="confirmPix()"
+          style="
+            background: #28a745;
+            color: #fff;
+            font-size: 18px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            margin-top: 14px;
+            font-weight: bold;
+            width: 90%;
+          "
+        >
+          Pagamento confirmado, clique para continuar.
+        </button>
+      </div>
+      <div id="popupNome" class="popup" aria-hidden="true">
+        <button class="closePopup" onclick="closeNome()">X</button>
+        <h3>Digite o nome do cliente</h3>
+        <input type="text" id="inputNome" readonly />
+        <div id="keyboard"></div>
+        <div style="text-align: center; margin-top: 12px">
+          <button
+            class="btn"
+            onclick="confirmNome()"
+            style="background: var(--vermelho); color: #fff"
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
+      <div id="popupTroco" class="popup" aria-hidden="true">
+        <button class="closePopup" onclick="closeTrocoPopup()">X</button>
+        <h3>Troco pra quanto?</h3>
+        <input
+          type="text"
+          id="inputTroco"
+          readonly
+          style="
+            width: 88%;
+            font-size: 20px;
+            padding: 10px;
+            border: 2px solid var(--amarelo);
+            border-radius: 10px;
+            text-align: center;
+          "
+        />
+        <div id="trocoKeyboard"></div>
+        <div style="text-align: center; margin-top: 8px">
+          <button
+            class="btn"
+            onclick="confirmTroco()"
+            style="background: #28a745; color: #fff"
+          >
+            Confirmar Troco
+          </button>
+        </div>
+      </div>
+      <div
+        id="popupAguarde"
+        class="popup"
+        aria-hidden="true"
+        style="width: 420px"
+      >
+        <h3>Pedido em Preparo</h3>
+        <p>Aguarde! Seu pedido foi enviado para a cozinha.</p>
+        <p style="text-align: center; margin-top: 12px">
+          <button
+            class="btn"
+            onclick="reiniciarPedido()"
+            style="background: #000; color: #fff"
+          >
+            Novo Pedido
+          </button>
+        </p>
+      </div>
+      <div
+        id="customAlert"
+        class="popup"
+        aria-hidden="true"
+        style="width: 320px; text-align: center"
+      >
+        <button class="closePopup" onclick="closeCustomAlert()">X</button>
+        <h3>Aviso</h3>
+        <p id="alertMessage"></p>
+        <button class="btn" onclick="closeCustomAlert()">OK</button>
+      </div>
+      <div
+        id="customConfirm"
+        class="popup"
+        aria-hidden="true"
+        style="width: 320px; text-align: center"
+      >
+        <button class="closePopup" onclick="closeCustomConfirm(false)">
+          X
+        </button>
+        <h3>Confirmação</h3>
+        <p id="confirmMessage"></p>
+        <div
+          style="display: flex; justify-content: space-around; margin-top: 12px"
+        >
+          <button
+            class="btn"
+            style="background: var(--vermelho); color: #fff"
+            onclick="closeCustomConfirm(true)"
+          >
+            Sim
+          </button>
+          <button
+            class="btn"
+            style="background: var(--preto); color: #fff"
+            onclick="closeCustomConfirm(false)"
+          >
+            Não
+          </button>
+        </div>
+      </div>
+      <footer id="footerCart">
+        <button id="toggleCart" title="Alternar carrinho">⬆️</button>
+        <h3 style="margin: 0">Seu Carrinho (<span id="cartCount">0</span>)</h3>
+        <div id="cartItems"></div>
+        <p>
+          <strong>Total: R$ <span id="cartTotal">0.00</span></strong>
+        </p>
+        <div
+          style="
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 6px;
+          "
+        >
+          <button id="paymentBtn" onclick="mostrarResumo()">
+            Resumo / Pagar
+          </button>
+          <button id="clearCartBtn" onclick="clearCart()">
+            Limpar Carrinho
+          </button>
+        </div>
+      </footer>
+    </main>
+    <audio id="soundClick" src="/sons/click.mp3" preload="auto"></audio>
+    <audio id="soundAdd" src="/sons/add.mp3" preload="auto"></audio>
+    <audio id="soundConfirm" src="/sons/confirm.mp3" preload="auto"></audio>
+    <script>
+      let cardapioData = {
+        Promoções: [
+          {
+            nome: "Batata G",
+            descricao:
+              "Batata G,Cheddar,Bacon, crocância e sabor inconfundível.",
+            precoBase: [16],
+            opcoes: ["Por apenas"],
+            img: "./img/batatag.png",
+            adicionais: [
+              { nome: "Bacon separado", preco: 0 },
+              { nome: "Cheddar separado", preco: 0 },
+            ],
+          },
+          {
+            nome: "1 Simples + 1 Duplo",
+            descricao:
+              "Acompanha um Smash Simples e um Smash Duplo deliciosos.",
+            precoBase: [25],
+            opcoes: ["Por apenas"],
+            img: "./img/simplesduplo.png",
+            combo: true,
+            burgers: ["Simples", "Duplo"],
+            simplesIngredients: [
+              "Cebola caramelizada",
+              "Molho artesanal",
+              "Cheddar fatiado",
+            ],
+            duploIngredients: [
+              "Alface",
+              "Tomate",
+              "Cebola caramelizada",
+              "Molho",
+              "Cheddar fatiado",
+            ],
+            simplesVegetables: ["Cebola caramelizada"],
+            duploVegetables: ["Alface", "Tomate", "Cebola caramelizada"],
+            paidExtras: [
+              { nome: "Bacon", preco: 4 },
+              { nome: "Carne Smash", preco: 5 },
+              { nome: "Ovo", preco: 2 },
+              { nome: "Cream Cheese", preco: 3 },
+            ],
+          },
+          {
+            nome: "3 Smash Simples",
+            descricao:
+              "3 unidades de smash simples, 100g cada! Carne prensada.",
+            precoBase: [30],
+            opcoes: ["Por apenas"],
+            img: "./img/3sms.png",
+            combo: true,
+            burgers: ["1º Simples", "2º Simples", "3º Simples"],
+            ingredients: [
+              "Cebola caramelizada",
+              "Cheddar fatiado",
+              "Molho artesanal",
+            ],
+            vegetables: ["Cebola caramelizada"],
+            paidExtras: [
+              { nome: "Bacon", preco: 4 },
+              { nome: "Carne Smash", preco: 5 },
+              { nome: "Ovo", preco: 2 },
+              { nome: "Cream Cheese", preco: 3 },
+            ],
+          },
+          {
+            nome: "Clone (2 Duplos)",
+            descricao: "Acompanha dois deliciosos Smash Duplos, o mais pedido!",
+            precoBase: [30],
+            opcoes: ["Por apenas"],
+            img: "./img/clone.png",
+            combo: true,
+            burgers: ["1º Duplo", "2º Duplo"],
+            ingredients: [
+              "Alface",
+              "Tomate",
+              "Cebola caramelizada",
+              "Molho",
+              "Cheddar fatiado",
+            ],
+            vegetables: ["Alface", "Tomate", "Cebola caramelizada"],
+            paidExtras: [
+              { nome: "Bacon", preco: 4 },
+              { nome: "Carne Smash", preco: 5 },
+              { nome: "Ovo", preco: 2 },
+              { nome: "Cream Cheese", preco: 3 },
+            ],
+          },
+          {
+            nome: "1 Simples + 2 Duplos",
+            descricao: "O combo acompanha um Smash Simples e dois Smash Duplos",
+            precoBase: [40],
+            opcoes: ["Por apenas"],
+            img: "./img/simples2duplos.png",
+            combo: true,
+            burgers: ["Simples", "1º Duplo", "2º Duplo"],
+            simplesIngredients: [
+              "Cebola caramelizada",
+              "Molho artesanal",
+              "Cheddar fatiado",
+            ],
+            duploIngredients: [
+              "Alface",
+              "Tomate",
+              "Cebola caramelizada",
+              "Molho",
+              "Cheddar fatiado",
+            ],
+            simplesVegetables: ["Cebola caramelizada"],
+            duploVegetables: ["Alface", "Tomate", "Cebola caramelizada"],
+            paidExtras: [
+              { nome: "Bacon", preco: 4 },
+              { nome: "Carne Smash", preco: 5 },
+              { nome: "Ovo", preco: 2 },
+              { nome: "Cream Cheese", preco: 3 },
+            ],
+          },
+          {
+            nome: "3 Duplos",
+            descricao: "Três deliciosos Smash Duplos, aproveita e pede o teu!",
+            precoBase: [45],
+            opcoes: ["Por apenas"],
+            img: "./img/3duplos.png",
+            combo: true,
+            burgers: ["1º Duplo", "2º Duplo", "3º Duplo"],
+            ingredients: [
+              "Alface",
+              "Tomate",
+              "Cebola caramelizada",
+              "Molho",
+              "Cheddar fatiado",
+            ],
+            vegetables: ["Alface", "Tomate", "Cebola caramelizada"],
+            paidExtras: [
+              { nome: "Bacon", preco: 4 },
+              { nome: "Carne Smash", preco: 5 },
+              { nome: "Ovo", preco: 2 },
+              { nome: "Cream Cheese", preco: 3 },
+            ],
+          },
+          {
+            nome: "Combo Plus!",
+            descricao:
+              "Compõe 4 smash duplos, junto a Batata G com cheddar e bacon!.",
+            precoBase: [75],
+            opcoes: ["Por apenas"],
+            img: "./img/comboplus.png",
+            combo: true,
+            burgers: ["1º Duplo", "2º Duplo", "3º Duplo", "4º Duplo"],
+            ingredients: [
+              "Alface",
+              "Tomate",
+              "Cebola caramelizada",
+              "Molho",
+              "Cheddar fatiado",
+            ],
+            vegetables: ["Alface", "Tomate", "Cebola caramelizada"],
+            adicionais: [{ nome: "Batata leva bacon", preco: 0 }],
+            paidExtras: [
+              { nome: "Bacon", preco: 4 },
+              { nome: "Carne Smash", preco: 5 },
+              { nome: "Ovo", preco: 2 },
+              { nome: "Cream Cheese", preco: 3 },
+            ],
+          },
+        ],
+        Artesanais: [
+          {
+            nome: "Smash",
+            opcoes: ["Simples", "Duplo", "Triplo Bacon"],
+            descricao: "Carne prensada na chapa, 100g cada suculência.",
+            precoBase: [12, 18, 25],
+            ingredientesPorOpcao: {
+              Simples: [
+                "Cebola caramelizada",
+                "Cheddar fatiado",
+                "Molho artesanal",
+              ],
+              Duplo: [
+                "2x Carne Smash",
+                "Cheddar",
+                "Alface",
+                "Tomate",
+                "Molho artesanal",
+              ],
+              "Triplo Bacon": [
+                "3x Carne Smash",
+                "Cheddar",
+                "Bacon",
+                "Molho artesanal",
+              ],
+            },
+            adicionais: [
+              { nome: "Bacon", preco: 4 },
+              { nome: "Carne", preco: 5 },
+              { nome: "Cream Cheese", preco: 3 },
+              { nome: "Ovo", preco: 2 },
+            ],
+            img: "./img/3sms.png",
+          },
+          {
+            nome: "Cremoso",
+            opcoes: ["Simples", "Duplo"],
+            descricao:
+              "Delicioso artesanal com cream cheese incluido, vai perder?",
+            precoBase: [16, 25],
+            ingredientesPadrao: [
+              "Alface",
+              "Tomate",
+              "Molho artesanal",
+              "Cheddar fatiado",
+              "Cream cheese",
+              "Cebola caramelizada",
+            ],
+            adicionais: [
+              { nome: "Bacon", preco: 4 },
+              { nome: "Carne", preco: 5 },
+              { nome: "Cream Cheese", preco: 3 },
+              { nome: "Ovo", preco: 2 },
+            ],
+            img: "./img/cc.png",
+          },
+          {
+            nome: "Cheese",
+            opcoes: ["Simples", "Duplo"],
+            descricao: "Para os amantes de queijo: Cheddar em dobro!",
+            precoBase: [14, 20],
+            ingredientesPadrao: [
+              "Alface",
+              "Tomate",
+              "Molho artesanal",
+              "Dobro de Cheddar",
+              "Cebola caramelizada",
+            ],
+            adicionais: [
+              { nome: "Bacon", preco: 4 },
+              { nome: "Carne", preco: 5 },
+              { nome: "Cream Cheese", preco: 3 },
+              { nome: "Ovo", preco: 2 },
+            ],
+            img: "./img/cheese.png",
+          },
+          {
+            nome: "Eggy",
+            opcoes: ["Simples", "Duplo"],
+            descricao: "O clássico com ovo frito, delicioso!",
+            precoBase: [15, 20],
+            ingredientesPadrao: [
+              "Alface",
+              "Tomate",
+              "Molho artesanal",
+              "Ovo",
+              "Cebola caramelizada",
+            ],
+            adicionais: [
+              { nome: "Bacon", preco: 4 },
+              { nome: "Carne", preco: 5 },
+              { nome: "Cream Cheese", preco: 3 },
+              { nome: "Ovo", preco: 2 },
+            ],
+            img: "./img/eggy.png",
+          },
+        ],
+        "Costela Bovina": [
+          {
+            nome: "Costela Bovina - Premium",
+            opcoes: ["Simples", "Duplo", "Triplo Bacon"],
+            descricao:
+              "Carne de costela bovina, suculência em 100g cada carne.",
+            precoBase: [18, 25, 30],
+            ingredientesPadrao: [
+              "Alface",
+              "Tomate",
+              "Cebola Caramelizada",
+              "Molho artesanal",
+              "Cheddar fatiado",
+            ],
+            adicionais: [
+              { nome: "Bacon", preco: 4 },
+              { nome: "Carne", preco: 5 },
+              { nome: "Cream Cheese", preco: 3 },
+              { nome: "Ovo", preco: 2 },
+            ],
+            img: "./img/rtriplo.png",
+          },
+        ],
+        "Batata Frita": [
+          {
+            nome: "Batata",
+            opcoes: ["Pequena", "Média", "Grande"],
+            precoBase: [8, 12, 16],
+            img: "./img/batata.png",
+            adicionais: [
+              { nome: "Bacon", preco: 2 },
+              { nome: "Cheddar", preco: 2 },
+            ],
+          },
+        ],
+        Bebidas: [
+          {
+            nome: "Coca Cola",
+            opcoes: ["Lata", "Lata Zero", "Litro"],
+            precoBase: [6, 6, 9],
+            img: "./img/coca.png",
+          },
+          {
+            nome: "Antártica",
+            opcoes: ["Lata", "Litro"],
+            precoBase: [5, 8],
+            img: "./img/antartica.png",
+          },
+          {
+            nome: "Cajá",
+            opcoes: ["300ml"],
+            precoBase: [5],
+            descricao: "Suco de polpa de Cajá.",
+            img: "./img/suco_polpa.png",
+          },
+          {
+            nome: "Maracujá",
+            opcoes: ["300ml"],
+            precoBase: [5],
+            descricao: "Suco de polpa de maracujá.",
+            img: "./img/suco_polpa.png",
+          },
+          {
+            nome: "Graviola",
+            opcoes: ["300ml"],
+            precoBase: [5],
+            descricao: "Suco de polpa de Graviola.",
+            img: "./img/suco_polpa.png",
+          },
+        ],
+        "Milk Shakes": [
+          {
+            nome: "Morango",
+            opcoes: ["300ml", "400ml"],
+            precoBase: [10, 12],
+            img: "./img/milks.png",
+          },
+          {
+            nome: "Ninho",
+            opcoes: ["300ml", "400ml"],
+            precoBase: [10, 12],
+            img: "./img/milks.png",
+          },
+          {
+            nome: "Ninho Oreo",
+            opcoes: ["300ml", "400ml"],
+            precoBase: [12, 14],
+            img: "./img/milks.png",
+          },
+          {
+            nome: "Delicia de Abacaxi",
+            opcoes: ["300ml", "400ml"],
+            precoBase: [10, 12],
+            img: "./img/milks.png",
+          },
+          {
+            nome: "Paçoca",
+            opcoes: ["300ml", "400ml"],
+            precoBase: [10, 12],
+            img: "./img/milks.png",
+          },
+          {
+            nome: "Ovomaltine",
+            opcoes: ["300ml", "400ml"],
+            precoBase: [12, 14],
+            img: "./img/milks.png",
+          },
+        ],
+      };
+      let cart = [];
+      let currentItem = null;
+      let splitPayments = [];
+      let currentPaymentIndex = null;
+      let firstInteraction = false;
+      let confirmCallback = null;
+      // Controle da tela inicial
+      function showStartScreen() {
+        document.body.classList.add("start-active");
+        document.getElementById("startScreen").classList.remove("hidden");
+        resetInactivityTimer();
+      }
+      function hideStartScreen() {
+        document.body.classList.remove("start-active");
+        document.getElementById("startScreen").classList.add("hidden");
+        tryEnterFullscreen();
+        resetInactivityTimer();
+      }
+      document.getElementById("startScreen").addEventListener("click", () => {
+        playSound("soundClick");
+        hideStartScreen();
+        showCategory(
+          "Promoções",
+          document.querySelector(".sessao-topo button")
+        );
+      });
+      let inactivityTimeout;
+      function resetInactivityTimer() {
+        clearTimeout(inactivityTimeout);
+        inactivityTimeout = setTimeout(() => {
+          reiniciarPedido();
+          showStartScreen();
+        }, 120000);
+      }
+      document.addEventListener("click", resetInactivityTimer);
+      document.addEventListener("touchstart", resetInactivityTimer);
+      function playSound(id) {
+        try {
+          document
+            .getElementById(id)
+            ?.play()
+            .catch(() => {});
+        } catch (e) {}
+      }
+      function tryEnterFullscreen() {
+        if (firstInteraction) return;
+        firstInteraction = true;
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+        else if (el.webkitRequestFullscreen)
+          el.webkitRequestFullscreen().catch(() => {});
+      }
+      function getIngredientesParaOpcao(item, opcao) {
+        if (item.ingredientesPorOpcao && item.ingredientesPorOpcao[opcao])
+          return item.ingredientesPorOpcao[opcao];
+        if (item.ingredientesPadrao) return item.ingredientesPadrao;
+        if (item.ingredientes) return item.ingredientes;
+        return [];
+      }
+      function hasCustomization(item) {
+        return (
+          item.combo ||
+          (item.adicionais && item.adicionais.length > 0) ||
+          item.ingredientesPorOpcao ||
+          (item.ingredientesPadrao && item.ingredientesPadrao.length > 0) ||
+          (item.ingredients && item.ingredients.length > 0) ||
+          item.simplesIngredients ||
+          item.duploIngredients
+        );
+      }
+      function showCategory(cat, btn) {
+        tryEnterFullscreen();
+        document
+          .querySelectorAll(".sessao-topo button")
+          .forEach((b) => b.classList.remove("active"));
+        if (btn && btn.classList) btn.classList.add("active");
+        const c = document.getElementById("cardapio");
+        c.innerHTML = "";
+        c.className =
+          "cardapio" + (cat === "Artesanais" ? " artesanais-container" : "");
+        (cardapioData[cat] || []).forEach((item, i) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          const img = document.createElement("img");
+          img.src = item.img || "";
+          img.alt = item.nome;
+          card.appendChild(img);
+          const title = document.createElement("h3");
+          title.textContent = item.nome;
+          card.appendChild(title);
+          if (item.descricao) {
+            const desc = document.createElement("p");
+            desc.className = "descricao";
+            desc.textContent = item.descricao;
+            card.appendChild(desc);
+          }
+          const opts = item.opcoes || [""];
+          const div = document.createElement("div");
+          div.className = "options-row";
+          opts.forEach((op, j) => {
+            const price =
+              item.precoBase[j] !== undefined
+                ? item.precoBase[j]
+                : item.precoBase[0] || 0;
+            const small = document.createElement("div");
+            small.className = "small-option";
+            small.innerHTML = `<p>${op || item.nome}</p><p>R$ ${Number(
+              price
+            ).toFixed(2)}</p>`;
+            if (hasCustomization(item)) {
+              const b = document.createElement("button");
+              b.className = "btn";
+              b.textContent = "Personalizar";
+              b.onclick = (ev) => {
+                playSound("soundClick");
+                openPopupCustom(cat, i, j);
+              };
+              small.appendChild(b);
+            }
+            if (
+              (cardapioData[cat][i].opcoes &&
+                cardapioData[cat][i].opcoes.length === 1) ||
+              cat === "Bebidas" ||
+              cat === "Batata Frita" ||
+              cat === "Milk Shakes"
+            ) {
+              const addBtn = document.createElement("button");
+              addBtn.className = "btn";
+              addBtn.textContent = "Adicionar";
+              addBtn.onclick = () => {
+                adicionarDireto(item.nome + (op ? " " + op : ""), price);
+              };
+              small.appendChild(addBtn);
+            }
+            div.appendChild(small);
+          });
+          card.appendChild(div);
+          c.appendChild(card);
+        });
+      }
+      function adicionarDireto(nome, preco) {
+        cart.push({ item: nome.trim(), price: Number(preco) });
+        animateAdd();
+        updateCart(true);
+      }
+      function animateAdd() {
+        playSound("soundAdd");
+        const footer = document.getElementById("footerCart");
+        footer.classList.add("expanded");
+        setTimeout(() => footer.classList.remove("expanded"), 2400);
+      }
+      function updateCart(autoExpand = false) {
+        const ci = document.getElementById("cartItems");
+        ci.innerHTML = "";
+        let t = 0;
+        cart.forEach((c, i) => {
+          const p = document.createElement("p");
+          p.innerHTML = `<span style="max-width:78%;">${escapeHtml(
+            c.item
+          )}</span><strong>R$ ${Number(c.price).toFixed(2)}</strong>`;
+          const btn = document.createElement("button");
+          btn.className = "removeBtn";
+          btn.textContent = "X";
+          btn.onclick = () => {
+            cart.splice(i, 1);
+            playSound("soundClick");
+            updateCart();
+          };
+          p.appendChild(btn);
+          ci.appendChild(p);
+          t += Number(c.price);
+        });
+        document.getElementById("cartCount").textContent = cart.length;
+        document.getElementById("cartTotal").textContent = t.toFixed(2);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        if (autoExpand && cart.length > 0) {
+          document.getElementById("footerCart").classList.add("expanded");
+          setTimeout(
+            () =>
+              document
+                .getElementById("footerCart")
+                .classList.remove("expanded"),
+            3200
+          );
+        }
+      }
+      function clearCart() {
+        playSound("soundClick");
+        cart = [];
+        updateCart();
+      }
+      function toggleCart(event) {
+        if (
+          event &&
+          (event.target.tagName === "BUTTON" || event.target.closest("button"))
+        )
+          return;
+        const f = document.getElementById("footerCart");
+        f.classList.toggle("expanded");
+        playSound("soundClick");
+      }
+      document.getElementById("toggleCart").addEventListener("click", (e) => {
+        const f = document.getElementById("footerCart");
+        if (f.classList.contains("expanded")) {
+          f.classList.remove("expanded");
+          document.getElementById("toggleCart").textContent = "⬆️";
+        } else {
+          f.classList.add("expanded");
+          document.getElementById("toggleCart").textContent = "⬇️";
+        }
+        playSound("soundClick");
+      });
+      function openPopupCustom(cat, i, j) {
+        tryEnterFullscreen();
+        playSound("soundClick");
+        const item = cardapioData[cat][i];
+        currentItem = {
+          cat,
+          i,
+          op: j,
+          extras: [],
+          precoBase: Number(item.precoBase[j] || item.precoBase[0] || 0),
+        };
+        const popup = document.getElementById("popupCustom");
+        const q = document.getElementById("popupQuestion");
+        const resumo = document.getElementById("popupResumo");
+        q.innerHTML = "";
+        resumo.innerHTML = "";
+        const opcao =
+          item.opcoes && item.opcoes[j]
+            ? item.opcoes[j]
+            : item.opcoes
+            ? item.opcoes[0]
+            : "";
+        const ingredientes = getIngredientesParaOpcao(item, opcao);
+        if (item.combo) {
+          item.burgers &&
+            item.burgers.forEach((burger, b) => {
+              q.innerHTML += `<h4 style="margin-top:8px;">Ingredientes do ${burger}:</h4>`;
+              const { ingredients } = getIngredsForComboCompat(item, burger);
+              ingredients.forEach((ing) => {
+                const id = `ing-${b}-${ing.replace(/ /g, "-")}`;
+                q.innerHTML += `<label style="display:block;"><input type='checkbox' id='${id}' checked value='${ing}'> ${ing}</label>`;
+              });
+              if (item.paidExtras) {
+                q.innerHTML += `<h5>Adicionais pagos para ${burger}:</h5>`;
+                item.paidExtras.forEach((ext) => {
+                  const id = `ext-${b}-${ext.nome.replace(/ /g, "-")}`;
+                  q.innerHTML += `<label style="display:block;"><input type='checkbox' id='${id}' data-preco='${
+                    ext.preco
+                  }' value='${ext.nome}'> ${ext.nome} (+R$ ${ext.preco.toFixed(
+                    2
+                  )})</label>`;
+                });
+              }
+            });
+          if (item.adicionais && item.adicionais.length > 0) {
+            q.innerHTML += `<h4>Adicionais:</h4>`;
+            item.adicionais.forEach((a) => {
+              q.innerHTML += `<label style="display:block;"><input type='checkbox' value='${a.nome}'> ${a.nome}</label>`;
+            });
+          }
+        } else {
+          if (ingredientes && ingredientes.length > 0) {
+            q.innerHTML += `<h4>Ingredientes:</h4>`;
+            ingredientes.forEach(
+              (ing) =>
+                (q.innerHTML += `<label style="display:block;"><input type='checkbox' checked value='${ing}'> ${ing}</label>`)
+            );
+          }
+        }
+        if (
+          (currentItem.cat === "Artesanais" ||
+            currentItem.cat === "Costela Bovina") &&
+          item.adicionais &&
+          item.adicionais.length > 0
+        ) {
+          q.innerHTML += `<h4>Adicionais pagos:</h4>`;
+          item.adicionais.forEach((a) => {
+            q.innerHTML += `<label style="display:block;"><input type='checkbox' data-preco='${
+              a.preco
+            }' value='${a.nome}'> ${a.nome} (+R$ ${a.preco.toFixed(
+              2
+            )})</label>`;
+          });
+        } else if (
+          item.adicionais &&
+          item.adicionais.length > 0 &&
+          !item.combo
+        ) {
+          q.innerHTML += `<h4>Adicionais:</h4>`;
+          item.adicionais.forEach((a) => {
+            if (a.preco)
+              q.innerHTML += `<label style="display:block;"><input type='checkbox' data-preco='${
+                a.preco
+              }' value='${a.nome}'> ${a.nome} (+R$ ${a.preco.toFixed(
+                2
+              )})</label>`;
+            else
+              q.innerHTML += `<label style="display:block;"><input type='checkbox' value='${a.nome}'> ${a.nome}</label>`;
+          });
+        }
+        resumo.innerHTML = `<hr><p style="text-align:center;"><strong>Total até agora:</strong> R$ ${currentItem.precoBase.toFixed(
+          2
+        )}</p>`;
+        popup.classList.add("show");
+        document.getElementById("backdrop").classList.add("show");
+      }
+      function closePopupCustom() {
+        document.getElementById("popupCustom").classList.remove("show");
+        document.getElementById("backdrop").classList.remove("show");
+      }
+      function confirmPopupCustom() {
+        playSound("soundAdd");
+        const item = cardapioData[currentItem.cat][currentItem.i];
+        let preco = Number(currentItem.precoBase);
+        let nomeFinal = "";
+        const opcao =
+          item.opcoes && item.opcoes[currentItem.op]
+            ? item.opcoes[currentItem.op]
+            : item.opcoes
+            ? item.opcoes[0]
+            : "";
+        const shortNames = {
+          Alface: "alface",
+          Tomate: "tomate",
+          "Cebola caramelizada": "cebola",
+          Molho: "molho",
+          "Molho artesanal": "molho",
+          "Cheddar fatiado": "queijo",
+        };
+        if (item.combo) {
+          let comboDetails = [];
+          item.burgers.forEach((burger, b) => {
+            const defaultIngs = getIngredsForComboCompat(
+              item,
+              burger
+            ).ingredients;
+            const selectedIngs = [];
+            defaultIngs.forEach((ing) => {
+              const checkbox = document.getElementById(
+                `ing-${b}-${ing.replace(/ /g, "-")}`
+              );
+              if (checkbox && checkbox.checked) {
+                selectedIngs.push(ing);
+              }
+            });
+            const removed = defaultIngs.filter(
+              (ing) => !selectedIngs.includes(ing)
+            );
+            let burgerStr = "";
+            if (removed.length === 0) {
+              burgerStr = "Completo";
+            } else {
+              const removedShort = removed.map(
+                (ing) => shortNames[ing] || ing.toLowerCase()
+              );
+              burgerStr = "sem " + removedShort.join(", ");
+            }
+            let added = [];
+            if (item.paidExtras) {
+              item.paidExtras.forEach((ext) => {
+                const checkbox = document.getElementById(
+                  `ext-${b}-${ext.nome.replace(/ /g, "-")}`
+                );
+                if (checkbox && checkbox.checked) {
+                  added.push(ext.nome);
+                  preco += Number(ext.preco);
+                }
+              });
+            }
+            if (added.length > 0) {
+              burgerStr += "; + " + added.join(", ");
+            }
+            comboDetails.push(`${burger} - ${burgerStr}`);
+          });
+          let generalExtras = [];
+          if (item.adicionais) {
+            item.adicionais.forEach((a) => {
+              const checkbox = document.querySelector(
+                `#popupQuestion input[value="${a.nome}"]`
+              );
+              if (checkbox && checkbox.checked) {
+                generalExtras.push(a.nome);
+                if (a.preco) preco += Number(a.preco);
+              }
+            });
+          }
+          nomeFinal = item.nome + " - " + comboDetails.join("; ");
+          if (generalExtras.length > 0) {
+            nomeFinal += "; " + generalExtras.join("; ");
+          }
+        } else {
+          currentItem.extras = [];
+          const checks = document.querySelectorAll(
+            '#popupQuestion input[type="checkbox"]'
+          );
+          checks.forEach((c) => {
+            if (c.checked) {
+              if (c.dataset.preco) preco += Number(c.dataset.preco);
+              currentItem.extras.push(c.value);
+            }
+          });
+          nomeFinal = item.nome + (opcao ? ` ${opcao}` : "");
+          if (currentItem.extras.length > 0)
+            nomeFinal += ` - ${currentItem.extras.join("; ")}`;
+        }
+        cart.push({ item: nomeFinal, price: preco });
+        updateCart(true);
+        closePopupCustom();
+        playSound("soundConfirm");
+      }
+      function openPaymentPopup() {
+        if (cart.length === 0) {
+          showCustomAlert("Carrinho vazio");
+          return;
+        }
+        closeAllPopups();
+        document.getElementById("popupPayment").classList.add("show");
+        document.getElementById("backdrop").classList.add("show");
+        document.getElementById("splitPaymentSection").style.display = "none";
+        playSound("soundClick");
+      }
+      function closePaymentPopup() {
+        document.getElementById("popupPayment").classList.remove("show");
+        document.getElementById("backdrop").classList.remove("show");
+        document.getElementById("splitPaymentSection").style.display = "none";
+        document.getElementById("splitPaymentInputs").innerHTML = "";
+        splitPayments = [];
+      }
+      function getCartTotal() {
+        return cart.reduce((s, c) => s + Number(c.price), 0);
+      }
+      function selectSinglePayment(method) {
+        playSound("soundClick");
+        const total = getCartTotal();
+        let payMethod = method;
+        let troco = 0;
+        if (method === "Dinheiro Exato") {
+          payMethod = "Dinheiro";
+          troco = total;
+          splitPayments = [{ value: total, method: payMethod, troco }]; // guarda para envio
+          proceedToNome();
+        } else {
+          splitPayments = [{ value: total, method: payMethod, troco: 0 }];
+          if (method === "Dinheiro") openTrocoPopup(0);
+          else proceedToNome();
+        }
+      }
+      function openSplitPayment() {
+        document.getElementById("splitPaymentSection").style.display = "block";
+        document.getElementById("orderTotal").textContent =
+          document.getElementById("cartTotal").textContent;
+        setupSplitPayment();
+      }
+      function setupSplitPayment() {
+        const numPayers = parseInt(document.getElementById("numPayers").value);
+        const splitInputs = document.getElementById("splitPaymentInputs");
+        splitInputs.innerHTML = "";
+        splitPayments = [];
+        for (let i = 0; i < numPayers; i++) {
+          const div = document.createElement("div");
+          div.className = "split-row";
+          div.innerHTML = `<input type="number" step="0.01" min="0" placeholder="Valor (R$)" onchange="updateSplitTotal()" />
+                     <select onchange="updateSplitTotal()">
+                      <option>Crédito</option><option>Débito</option><option>PIX</option><option>Dinheiro</option>
+                     </select>`;
+          splitInputs.appendChild(div);
+        }
+        updateSplitTotal();
+      }
+      function updateSplitTotal() {
+        const inputs = document.querySelectorAll(
+          '#splitPaymentInputs input[type="number"]'
+        );
+        const selects = document.querySelectorAll("#splitPaymentInputs select");
+        let total = 0;
+        splitPayments = [];
+        inputs.forEach((input, i) => {
+          const v = parseFloat(input.value) || 0;
+          total += v;
+          splitPayments.push({ value: v, method: selects[i].value, troco: 0 });
+        });
+        const orderTotal = parseFloat(
+          document.getElementById("cartTotal").textContent
+        );
+        document.getElementById(
+          "splitTotal"
+        ).textContent = `Total inserido: R$ ${total.toFixed(2)}`;
+        const errorDiv = document.getElementById("splitError");
+        if (Math.abs(total - orderTotal) > 0.01) {
+          errorDiv.style.display = "block";
+          document.getElementById("confirmSplitBtn").disabled = true;
+        } else {
+          errorDiv.style.display = "none";
+          document.getElementById("confirmSplitBtn").disabled = false;
+        }
+      }
+      function confirmSplitPayment() {
+        playSound("soundClick");
+        const cashPayments = splitPayments.filter(
+          (p) => p.method === "Dinheiro"
+        );
+        if (cashPayments.length > 0) {
+          currentPaymentIndex = 0;
+          processCashPayments();
+        } else proceedToNome();
+      }
+      function openTrocoPopup(index) {
+        currentPaymentIndex = index;
+        document.getElementById("inputTroco").value = "";
+        document.getElementById("popupTroco").classList.add("show");
+        document.getElementById("backdrop").classList.add("show");
+      }
+      function closeTrocoPopup() {
+        document.getElementById("popupTroco").classList.remove("show");
+        document.getElementById("backdrop").classList.remove("show");
+      }
+      function confirmTroco() {
+        const trocoVal =
+          parseFloat(document.getElementById("inputTroco").value) || 0;
+        const paymentValue =
+          splitPayments[currentPaymentIndex]?.value ??
+          parseFloat(document.getElementById("cartTotal").textContent);
+        if (trocoVal < paymentValue) {
+          showCustomAlert(
+            `⚠️ O troco (R$ ${trocoVal.toFixed(
+              2
+            )}) deve ser maior ou igual ao valor pago (R$ ${paymentValue.toFixed(
+              2
+            )})`
+          );
+          return;
+        }
+        splitPayments[currentPaymentIndex].troco = trocoVal;
+        closeTrocoPopup();
+        const nextIndex = splitPayments.findIndex(
+          (p, i) =>
+            i > currentPaymentIndex && p.method === "Dinheiro" && p.troco === 0
+        );
+        if (nextIndex >= 0) {
+          currentPaymentIndex = nextIndex;
+          openTrocoPopup(currentPaymentIndex);
+        } else {
+          proceedToNome();
+        }
+      }
+      function processCashPayments() {
+        const index = splitPayments.findIndex(
+          (p, i) =>
+            p.method === "Dinheiro" &&
+            (currentPaymentIndex === 0 ? i >= 0 : i >= currentPaymentIndex)
+        );
+        if (index >= 0) openTrocoPopup(index);
+        else proceedToNome();
+      }
+      let dividirFocusedInput = null;
+      function abrirPopupDividirPagamento() {
+        document.getElementById("popupPayment").classList.remove("show");
+        document.getElementById("backdrop").classList.remove("show");
+        const total = getCartTotal();
+        document.getElementById(
+          "valorTotalDivisao"
+        ).innerText = `Total: R$ ${total.toFixed(2)}`;
+        document.getElementById("quantidadePessoas").value = "";
+        document.getElementById("inputsDivisao").innerHTML = "";
+        document.getElementById(
+          "faltandoValor"
+        ).innerText = `Faltando R$ ${total.toFixed(2)}`;
+        document.getElementById("confirmarDivisao").disabled = true;
+        document.getElementById("dividirKeypad").style.display = "none";
+        document.getElementById("popupDividirPagamento").classList.add("show");
+        document.getElementById("backdrop").classList.add("show");
+        playSound("soundClick");
+      }
+      function closePopupDividir() {
+        document
+          .getElementById("popupDividirPagamento")
+          .classList.remove("show");
+        document.getElementById("backdrop").classList.remove("show");
+      }
+      function gerarCamposDivisao() {
+        const qtd = parseInt(
+          document.getElementById("quantidadePessoas").value
+        );
+        const container = document.getElementById("inputsDivisao");
+        container.innerHTML = "";
+        dividirFocusedInput = null;
+        if (!qtd) {
+          document.getElementById("dividirKeypad").style.display = "none";
+          return;
+        }
+        for (let i = 1; i <= qtd; i++) {
+          const div = document.createElement("div");
+          div.className = "rowDiv";
+          div.innerHTML = `
+      <label>Pessoa ${i}:</label>
+      <input type="text" inputmode="decimal" id="valorPessoa${i}" placeholder="0.00" style="padding:10px;border-radius:8px;border:2px solid var(--amarelo);font-size:18px;width:120px;text-align:right;" />
+      <select id="methodPessoa${i}" style="padding:10px;border-radius:8px;border:2px solid var(--amarelo);font-size:18px;width:160px;margin-left:8px;">
+        <option>PIX</option>
+        <option>Cartão</option>
+        <option>Dinheiro (com troco)</option>
+        <option>Dinheiro (sem troco)</option>
+      </select>
+    `;
+          container.appendChild(div);
+          const inputEl = div.querySelector("input");
+          inputEl.addEventListener("focus", () => {
+            dividirFocusedInput = inputEl;
+            document.getElementById("dividirKeypad").style.display = "grid";
+          });
+          inputEl.addEventListener("input", () => {
+            atualizarDivisao();
+          });
+        }
+        atualizarDivisao();
+      }
+      function atualizarDivisao() {
+        const total = getCartTotal();
+        const qtd =
+          parseInt(document.getElementById("quantidadePessoas").value) || 0;
+        let soma = 0;
+        for (let i = 1; i <= qtd; i++) {
+          const v =
+            parseFloat(
+              document
+                .getElementById(`valorPessoa${i}`)
+                ?.value.replace(",", ".") || 0
+            ) || 0;
+          soma += v;
+        }
+        const faltando = total - soma;
+        const faltandoDiv = document.getElementById("faltandoValor");
+        if (faltando > 0.01) {
+          faltandoDiv.innerText = `Faltando R$ ${faltando.toFixed(2)}`;
+          faltandoDiv.style.color = "red";
+          document.getElementById("confirmarDivisao").disabled = true;
+        } else if (faltando < -0.01) {
+          faltandoDiv.innerText = `Valor excedente R$ ${Math.abs(
+            faltando
+          ).toFixed(2)}`;
+          faltandoDiv.style.color = "orange";
+          document.getElementById("confirmarDivisao").disabled = true;
+        } else {
+          faltandoDiv.innerText = `Valores conferem ✅`;
+          faltandoDiv.style.color = "green";
+          document.getElementById("confirmarDivisao").disabled = false;
+        }
+      }
+      function confirmarDivisao() {
+        const qtd =
+          parseInt(document.getElementById("quantidadePessoas").value) || 0;
+        splitPayments = [];
+        for (let i = 1; i <= qtd; i++) {
+          const raw = document.getElementById(`valorPessoa${i}`)?.value || "0";
+          const val = parseFloat(raw.replace(",", ".")) || 0;
+          const methodRaw = document.getElementById(`methodPessoa${i}`).value;
+          let method = methodRaw.startsWith("Dinheiro")
+            ? "Dinheiro"
+            : methodRaw;
+          let troco = methodRaw === "Dinheiro (sem troco)" ? val : 0;
+          splitPayments.push({ value: val, method, troco });
+        }
+        closePopupDividir();
+        const cashWithTroco = splitPayments.filter(
+          (p) => p.method === "Dinheiro" && p.troco === 0
+        );
+        if (cashWithTroco.length > 0) {
+          currentPaymentIndex = splitPayments.findIndex(
+            (p) => p.method === "Dinheiro" && p.troco === 0
+          );
+          openTrocoPopup(currentPaymentIndex);
+        } else {
+          proceedToNome();
+        }
+        playSound("soundConfirm");
+      }
+      document.addEventListener("click", (e) => {
+        const keyBtn = e.target.closest(".key-btn");
+        if (!keyBtn) return;
+        const key = keyBtn.dataset.key;
+        if (!dividirFocusedInput) return;
+        if (key === "⌫") {
+          dividirFocusedInput.value = dividirFocusedInput.value.slice(0, -1);
+        } else if (key === ".") {
+          if (!dividirFocusedInput.value.includes("."))
+            dividirFocusedInput.value += ".";
+        } else {
+          dividirFocusedInput.value += key;
+        }
+        dividirFocusedInput.dispatchEvent(
+          new Event("input", { bubbles: true })
+        );
+      });
+      function proceedToNome() {
+        closePaymentPopup();
+        document.getElementById("inputNome").value = "";
+        document.getElementById("popupNome").dataset.payment =
+          JSON.stringify(splitPayments);
+        document.getElementById("popupNome").classList.add("show");
+        document.getElementById("backdrop").classList.add("show");
+      }
+      function closeNome() {
+        document.getElementById("popupNome").classList.remove("show");
+        document.getElementById("backdrop").classList.remove("show");
+      }
+      function confirmNome() {
+        const nome = document.getElementById("inputNome").value.trim();
+        if (!nome) {
+          showCustomAlert("Digite o nome antes de confirmar");
+          return;
+        }
+        closeNome();
+        openOpcaoEscolha(nome);
+      }
+      function openOpcaoEscolha(nomeCliente) {
+        showCustomConfirm(
+          "Comer aqui? (Sim = Comer aqui / Não = Para viagem)",
+          (result) => {
+            sendOrder(nomeCliente, result ? "Comer aqui" : "Para viagem");
+          }
+        );
+      }
+      function sendOrder(nomeCliente, opcao) {
+        playSound("soundConfirm");
+        document.getElementById("popupAguarde").classList.add("show");
+        document.getElementById("backdrop").classList.add("show");
+        setTimeout(() => {
+          document.getElementById("popupAguarde").classList.remove("show");
+          document.getElementById("backdrop").classList.remove("show");
+          const codigoPedido = Math.floor(
+            1000 + Math.random() * 9000
+          ).toString();
+          const pedidos = JSON.parse(localStorage.getItem("pedidos") || "[]");
+          const pedido = {
+            id: Date.now().toString(),
+            nomeCliente: nomeCliente,
+            itens: cart.map((c) => c.item),
+            total: cart.reduce((s, c) => s + Number(c.price), 0).toFixed(2),
+            pagamentos: JSON.parse(
+              document.getElementById("popupNome").dataset.payment || "[]"
+            ),
+            status: "pendente",
+            codigoPedido,
+            opcaoAtendimento: opcao,
+          };
+          pedidos.push(pedido);
+          localStorage.setItem("pedidos", JSON.stringify(pedidos));
+          cart = [];
+          updateCart();
+          showCustomAlert(`Pedido enviado! Código: ${codigoPedido}`);
+          document.getElementById("inputNome").value = "";
+          setTimeout(() => {
+            closeCustomAlert();
+            reiniciarPedido();
+          }, 3000);
+        }, 900);
+      }
+      function showCustomAlert(message) {
+        document.getElementById("alertMessage").textContent = message;
+        document.getElementById("customAlert").classList.add("show");
+        document.getElementById("backdrop").classList.add("show");
+        playSound("soundClick");
+      }
+      function closeCustomAlert() {
+        document.getElementById("customAlert").classList.remove("show");
+        document.getElementById("backdrop").classList.remove("show");
+      }
+      function showCustomConfirm(message, callback) {
+        document.getElementById("confirmMessage").textContent = message;
+        confirmCallback = callback;
+        document.getElementById("customConfirm").classList.add("show");
+        document.getElementById("backdrop").classList.add("show");
+        playSound("soundClick");
+      }
+      function closeCustomConfirm(result) {
+        document.getElementById("customConfirm").classList.remove("show");
+        document.getElementById("backdrop").classList.remove("show");
+        if (confirmCallback) {
+          confirmCallback(result);
+          confirmCallback = null;
+        }
+      }
+      const teclado = [
+        ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+        ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+        ["Z", "X", "C", "V", "B", "N", "M"],
+      ];
+      const keyboardDiv = document.getElementById("keyboard");
+      keyboardDiv.innerHTML = "";
+      teclado.forEach((row) => {
+        row.forEach((l) => {
+          const btn = document.createElement("button");
+          btn.textContent = l;
+          btn.onclick = () => {
+            tryEnterFullscreen();
+            document.getElementById("inputNome").value += l;
+            playSound("soundClick");
+          };
+          keyboardDiv.appendChild(btn);
+        });
+      });
+      const btnSpace = document.createElement("button");
+      btnSpace.textContent = "␣";
+      btnSpace.className = "space";
+      btnSpace.onclick = () => {
+        document.getElementById("inputNome").value += " ";
+        playSound("soundClick");
+      };
+      keyboardDiv.appendChild(btnSpace);
+      const btnBack = document.createElement("button");
+      btnBack.textContent = "⌫";
+      btnBack.className = "backspace";
+      btnBack.onclick = () => {
+        const input = document.getElementById("inputNome");
+        input.value = input.value.slice(0, -1);
+        playSound("soundClick");
+      };
+      keyboardDiv.appendChild(btnBack);
+      const trocoKeyboardDiv = document.getElementById("trocoKeyboard");
+      const trocoKeys = [
+        "7",
+        "8",
+        "9",
+        "4",
+        "5",
+        "6",
+        "1",
+        "2",
+        "3",
+        "0",
+        ".",
+        "⌫",
+      ];
+      trocoKeys.forEach((key) => {
+        const btn = document.createElement("button");
+        btn.textContent = key;
+        btn.onclick = () => {
+          const input = document.getElementById("inputTroco");
+          if (key === "⌫") input.value = input.value.slice(0, -1);
+          else if (key === "." && !input.value.includes("."))
+            input.value += key;
+          else if (key !== ".") input.value += key;
+          playSound("soundClick");
+        };
+        trocoKeyboardDiv.appendChild(btn);
+      });
+      function escapeHtml(text) {
+        const map = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
+        };
+        return String(text).replace(/[&<>"']/g, function (m) {
+          return map[m];
+        });
+      }
+      function getIngredsForComboCompat(item, burger) {
+        if (item.simplesIngredients && burger.includes("Simples")) {
+          return { ingredients: item.simplesIngredients };
+        } else {
+          return {
+            ingredients:
+              item.duploIngredients ||
+              item.ingredients ||
+              item.ingredientesPadrao ||
+              [],
+          };
+        }
+      }
+      function mostrarResumo() {
+        if (cart.length === 0) {
+          showCustomAlert("Carrinho vazio");
+          return;
+        }
+        const resumoDiv = document.getElementById("resumoItens");
+        resumoDiv.innerHTML =
+          cart
+            .map(
+              (c) =>
+                `<div style="display:flex;justify-content:space-between;padding:6px 0;"><div>${escapeHtml(
+                  c.item
+                )}</div><div>R$ ${Number(c.price).toFixed(2)}</div></div>`
+            )
+            .join("") +
+          `<hr><div style="text-align:right;"><strong>Total: R$ ${cart
+            .reduce((s, c) => s + Number(c.price), 0)
+            .toFixed(2)}</strong></div>`;
+        document.getElementById("popupResumoPedido").classList.add("show");
+        document.getElementById("backdrop").classList.add("show");
+        playSound("soundClick");
+      }
+      function closeAllPopups() {
+        document
+          .querySelectorAll(".popup")
+          .forEach((p) => p.classList.remove("show"));
+        document.getElementById("backdrop").classList.remove("show");
+      }
+      function reiniciarPedido() {
+        cart = [];
+        updateCart();
+        closeAllPopups();
+        showCategory(
+          "Promoções",
+          document.querySelector(".sessao-topo button")
+        );
+        showStartScreen();
+      }
+      function openPixPopup() {
+        closePaymentPopup();
+        document.getElementById("popupPix").classList.add("show");
+        document.getElementById("backdrop").classList.add("show");
+      }
+      function closePix() {
+        document.getElementById("popupPix").classList.remove("show");
+        document.getElementById("backdrop").classList.remove("show");
+      }
+      function confirmPix() {
+        closePix();
+        proceedToNome();
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        try {
+          cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        } catch (e) {
+          cart = [];
+        }
+        tryEnterFullscreen();
+        showStartScreen();
+        updateCart();
+        setInterval(() => {
+          document.getElementById("relogio").textContent =
+            new Date().toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+        }, 1000);
+        document.body.addEventListener(
+          "click",
+          (e) => {
+            if (e.target.tagName === "BUTTON") playSound("soundClick");
+          },
+          true
+        );
+      });
+    </script>
+  </body>
+</html>

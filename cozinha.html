@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cozinha - Ribbs</title>
+    <style>
+      :root {
+        --preto: #000;
+        --branco: #f2f2f2;
+        --cinza: #b3b3b3;
+        --amarelo: #ffd500;
+        --vermelho: #ff0000;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: var(--preto);
+        color: var(--branco);
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      h1,
+      h2 {
+        text-align: center;
+        color: var(--amarelo);
+      }
+      .pedidos-pendentes,
+      .pedidos-concluidos {
+        margin-bottom: 40px;
+      }
+      .card {
+        background-color: var(--branco);
+        color: var(--preto);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      }
+      .card.minimizado {
+        padding: 15px;
+        font-size: 16px;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--cinza);
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+      }
+      .card-header h3 {
+        margin: 0;
+        color: var(--preto);
+        font-size: 20px;
+      }
+      .card-content p,
+      .card-content div {
+        margin: 6px 0;
+        font-size: 16px;
+      }
+      .card-content .pagamento-troco {
+        color: var(--vermelho);
+        font-weight: bold;
+        margin-left: 5px;
+      }
+      .card-actions button {
+        padding: 12px 20px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background 0.2s, transform 0.1s;
+        touch-action: manipulation;
+      }
+      .btn-aceitar {
+        background-color: #28a745;
+        color: var(--branco);
+      }
+      .btn-cancelar {
+        background-color: var(--vermelho);
+        color: var(--branco);
+      }
+      .btn-adicionar {
+        background-color: var(--amarelo);
+        color: var(--preto);
+      }
+      .btn-pronto {
+        background-color: #17a2b8;
+        color: var(--branco);
+      }
+      .btn-excluir {
+        background-color: #dc3545;
+        color: var(--branco);
+      }
+      .btn-aceitar:hover {
+        background-color: #218838;
+        transform: scale(1.05);
+      }
+      .btn-cancelar:hover {
+        background-color: #cc0000;
+        transform: scale(1.05);
+      }
+      .btn-adicionar:hover {
+        background-color: #ffc700;
+        transform: scale(1.05);
+      }
+      .btn-pronto:hover {
+        background-color: #138496;
+        transform: scale(1.05);
+      }
+      .btn-excluir:hover {
+        background-color: #c82333;
+        transform: scale(1.05);
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+      .modal-content {
+        background-color: var(--branco);
+        color: var(--preto);
+        padding: 30px;
+        border-radius: 10px;
+        width: 450px;
+        max-width: 95%;
+        text-align: center;
+      }
+      .modal-content h3 {
+        margin-top: 0;
+        color: var(--vermelho);
+        font-size: 22px;
+      }
+      .modal-content input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        border: 2px solid var(--amarelo);
+        border-radius: 5px;
+        font-size: 16px;
+        outline: none;
+      }
+      .modal-content input:focus {
+        border-color: var(--vermelho);
+        box-shadow: 0 0 5px rgba(255, 69, 0, 0.5);
+      }
+      .modal-content button {
+        padding: 12px 20px;
+        margin: 0 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        touch-action: manipulation;
+      }
+      .btn-salvar {
+        background-color: #28a745;
+        color: var(--branco);
+      }
+      .btn-fechar {
+        background-color: var(--cinza);
+        color: var(--preto);
+      }
+      .btn-salvar:hover {
+        background-color: #218838;
+        transform: scale(1.05);
+      }
+      .btn-fechar:hover {
+        background-color: #999;
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Cozinha - Ribbs</h1>
+      <div class="pedidos-pendentes">
+        <h2>Pedidos Pendentes</h2>
+        <div id="pendentes"></div>
+      </div>
+      <div class="pedidos-concluidos">
+        <h2>Pedidos Concluídos/Cancelados</h2>
+        <div id="concluidos"></div>
+      </div>
+    </div>
+
+    <div id="modal-adicionar" class="modal">
+      <div class="modal-content">
+        <h3>Adicionar Ingredientes</h3>
+        <input
+          type="text"
+          id="ingredientes-input"
+          placeholder="Digite os ingredientes adicionais (ex.: Cebola Extra, Molho)"
+        />
+        <button class="btn-salvar" onclick="salvarIngredientes()">
+          Salvar
+        </button>
+        <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
+      </div>
+    </div>
+
+    <script>
+      let pedidoSelecionadoId = null;
+
+      /**
+       * Helper: Mapeia um ID de cartão (pode ser o ID original do pedido ou o ID agregado "Mesa X")
+       * para todos os IDs originais de pedidos parciais pendentes no localStorage que o compõem.
+       * @param {string} id - O ID clicado no cartão.
+       * @param {Array<Object>} pedidos - O array bruto de pedidos do localStorage.
+       * @returns {Array<string>} Uma lista de IDs de pedidos crus para serem atualizados/excluídos.
+       */
+      function getPedidosByAggregatedId(id, pedidos) {
+        // Se for um ID numérico (de um pedido concluído/cancelado), retorna apenas ele.
+        if (!isNaN(id)) return [id];
+
+        // Se for um ID agregado (e.g., "Mesa 1")
+        const mesaMatch = id.match(/Mesa (\d+)/);
+        if (mesaMatch) {
+          const mesaKey = id;
+          const idsToUpdate = [];
+
+          pedidos.forEach((p) => {
+            // Verifica se a opção de atendimento inclui a chave da mesa E se o status está em aberto.
+            if (
+              p.opcaoAtendimento &&
+              p.opcaoAtendimento.includes(mesaKey) &&
+              p.status !== "concluido" &&
+              p.status !== "cancelado"
+            ) {
+              idsToUpdate.push(p.id);
+            }
+          });
+          return idsToUpdate;
+        }
+
+        // Fallback para IDs que não são mesas.
+        return [id];
+      }
+
+      /**
+       * Helper: Renderiza um único cartão de pedido.
+       * @param {Object} pedido - O objeto de pedido (pode ser cru ou agregado).
+       * @param {HTMLElement} containerDiv - O contêiner para anexar o cartão (pendentesDiv ou concluidosDiv).
+       * @param {boolean} isAgregado - Flag indicando se o objeto está agregado.
+       */
+      function renderCard(pedido, containerDiv, isAgregado = false) {
+        const status = pedido.status || "pendente";
+        // Usa dados agregados se disponíveis
+        const itens = isAgregado ? pedido.itensAgregados : pedido.itens;
+        const total = isAgregado
+          ? pedido.totalAgregado.toFixed(2)
+          : Number(pedido.total).toFixed(2);
+
+        const nomeCliente = pedido.nomeCliente || "Sem nome";
+        const codigoPedido = pedido.codigoPedido || "Sem código";
+        const opcaoAtendimento = pedido.opcaoAtendimento || "Não especificado";
+
+        // Pagamentos: apenas para pedidos finais (não agregados)
+        let pagamentosStr = "Não especificado";
+        if (
+          !isAgregado &&
+          pedido.pagamentos &&
+          Array.isArray(pedido.pagamentos) &&
+          pedido.pagamentos.length > 0
+        ) {
+          pagamentosStr = pedido.pagamentos
+            .map((p) => {
+              let str = `<div>${p.method}: R$ ${Number(p.value).toFixed(2)}`;
+              if (p.method === "Dinheiro" && p.troco && p.troco > 0) {
+                str += ` <span class="pagamento-troco">(Troco: R$ ${Number(
+                  p.troco
+                ).toFixed(2)})</span>`;
+              }
+              str += `</div>`;
+              return str;
+            })
+            .join("");
+        }
+
+        const card = document.createElement("div");
+        card.className =
+          "card" +
+          (status === "concluido" || status === "cancelado"
+            ? " minimizado"
+            : "");
+        card.innerHTML = `
+          <div class="card-header">
+            <h3>${
+              isAgregado ? pedido.opcaoAtendimento : `Comanda: ${nomeCliente}`
+            } (Código: ${codigoPedido})</h3>
+            <span>Status: ${
+              status.charAt(0).toUpperCase() + status.slice(1)
+            }</span>
+          </div>
+          <div class="card-content">
+            <p><strong>Itens:</strong> ${itens.join("<br>")}</p>
+            <p><strong>Total:</strong> R$ ${total}</p>
+            ${
+              !isAgregado && pedido.pagamentos
+                ? `
+                <p><strong>Pagamento:</strong></p>
+                ${pagamentosStr}
+            `
+                : ""
+            }
+            ${
+              pedido.ingredientesAdicionais
+                ? `<p><strong>Ingredientes Adicionais:</strong> ${pedido.ingredientesAdicionais}</p>`
+                : ""
+            }
+            <p><strong>Opção:</strong> ${opcaoAtendimento}</p>
+          </div>
+          ${
+            status !== "concluido" && status !== "cancelado"
+              ? `
+            <div class="card-actions">
+              <button class="btn-aceitar" onclick="atualizarStatus('${pedido.id}', 'aceito')">Aceitar</button>
+              <button class="btn-cancelar" onclick="atualizarStatus('${pedido.id}', 'cancelado')">Cancelar</button>
+              <button class="btn-adicionar" onclick="abrirModal('${pedido.id}')">Adicionar Ingredientes</button>
+              <button class="btn-pronto" onclick="atualizarStatus('${pedido.id}', 'concluido')">Marcar como Pronto</button>
+              <button class="btn-excluir" onclick="excluirPedido('${pedido.id}')">Excluir</button>
+            </div>
+          `
+              : `
+            <div class="card-actions">
+              <button class="btn-excluir" onclick="excluirPedido('${pedido.id}')">Excluir</button>
+            </div>
+          `
+          }
+        `;
+        containerDiv.appendChild(card);
+      }
+
+      function carregarPedidos() {
+        const pedidosRaw = JSON.parse(localStorage.getItem("pedidos") || "[]");
+        const pendentesDiv = document.getElementById("pendentes");
+        const concluidosDiv = document.getElementById("concluidos");
+        pendentesDiv.innerHTML = "";
+        concluidosDiv.innerHTML = "";
+
+        const pedidosPendentesAgregados = {};
+
+        pedidosRaw.forEach((pedido) => {
+          const status = pedido.status || "pendente";
+
+          if (status === "concluido" || status === "cancelado") {
+            // Pedidos concluídos/cancelados: Renderiza diretamente
+            renderCard(pedido, concluidosDiv);
+          } else {
+            // Pedidos pendentes/aceitos: Agrega por mesa
+            const opcaoAtendimento =
+              pedido.opcaoAtendimento || "Não especificado";
+            // Tenta identificar "Mesa X" no campo opcaoAtendimento
+            const mesaMatch = opcaoAtendimento.match(/Mesa (\d+)/);
+            const mesaKey = mesaMatch
+              ? `Mesa ${mesaMatch[1]}`
+              : pedido.nomeCliente || "Diversos Pendentes";
+
+            if (!pedidosPendentesAgregados[mesaKey]) {
+              // Primeiro pedido parcial para esta mesa
+              pedidosPendentesAgregados[mesaKey] = {
+                id: mesaKey,
+                nomeCliente: pedido.nomeCliente || mesaKey,
+                codigoPedido: `Comanda ${mesaKey.slice(5)}`,
+                opcaoAtendimento: mesaKey,
+                status: status,
+                ingredientesAdicionais: pedido.ingredientesAdicionais || "",
+                idsOriginais: [pedido.id],
+                itensAgregados: [...pedido.itens],
+                totalAgregado: Number(pedido.total || 0),
+                pagamentos: null,
+              };
+              // Retém o status mais "avançado" (aceito > pendente)
+              if (status === "aceito")
+                pedidosPendentesAgregados[mesaKey].status = "aceito";
+            } else {
+              // Próximos pedidos parciais para esta mesa: Agrega dados
+              pedidosPendentesAgregados[mesaKey].idsOriginais.push(pedido.id);
+              pedidosPendentesAgregados[mesaKey].itensAgregados.push(
+                ...pedido.itens
+              );
+              pedidosPendentesAgregados[mesaKey].totalAgregado += Number(
+                pedido.total || 0
+              );
+
+              // Retém o status mais avançado
+              if (status === "aceito")
+                pedidosPendentesAgregados[mesaKey].status = "aceito";
+
+              // Adiciona novos ingredientes
+              if (pedido.ingredientesAdicionais) {
+                const existing =
+                  pedidosPendentesAgregados[mesaKey].ingredientesAdicionais;
+                pedidosPendentesAgregados[mesaKey].ingredientesAdicionais =
+                  existing
+                    ? `${existing}; ${pedido.ingredientesAdicionais}`
+                    : pedido.ingredientesAdicionais;
+              }
+            }
+          }
+        });
+
+        // Renderiza pedidos pendentes agregados
+        Object.values(pedidosPendentesAgregados).forEach((pedidoAgregado) => {
+          renderCard(pedidoAgregado, pendentesDiv, true);
+        });
+
+        // Mensagens de fallback
+        if (Object.keys(pedidosPendentesAgregados).length === 0) {
+          pendentesDiv.innerHTML = "<p>Nenhum pedido pendente.</p>";
+        }
+        if (concluidosDiv.innerHTML === "") {
+          concluidosDiv.innerHTML =
+            "<p>Nenhum pedido concluído ou cancelado.</p>";
+        }
+      }
+
+      function atualizarStatus(id, novoStatus) {
+        const pedidos = JSON.parse(localStorage.getItem("pedidos") || "[]");
+        // Usa o helper para pegar todos os IDs de pedidos parciais da comanda/mesa
+        const idsToUpdate = getPedidosByAggregatedId(id, pedidos);
+
+        let updated = false;
+        idsToUpdate.forEach((rawId) => {
+          const index = pedidos.findIndex((p) => p.id === rawId);
+          if (index !== -1) {
+            pedidos[index].status = novoStatus;
+            updated = true;
+          }
+        });
+
+        if (updated) {
+          localStorage.setItem("pedidos", JSON.stringify(pedidos));
+          carregarPedidos();
+        }
+      }
+
+      function excluirPedido(id) {
+        if (!confirm("Tem certeza que deseja excluir o pedido/comanda?"))
+          return;
+        const pedidos = JSON.parse(localStorage.getItem("pedidos") || "[]");
+        // Usa o helper para pegar todos os IDs de pedidos parciais da comanda/mesa
+        const idsToExclude = getPedidosByAggregatedId(id, pedidos);
+
+        // Cria um novo array excluindo todos os IDs relacionados
+        const novosPedidos = pedidos.filter(
+          (p) => !idsToExclude.includes(p.id)
+        );
+
+        if (novosPedidos.length !== pedidos.length) {
+          localStorage.setItem("pedidos", JSON.stringify(novosPedidos));
+          carregarPedidos();
+        }
+      }
+
+      function abrirModal(id) {
+        pedidoSelecionadoId = id; // Pode ser o ID original ou o ID agregado "Mesa X"
+        document.getElementById("modal-adicionar").style.display = "flex";
+        document.getElementById("ingredientes-input").focus();
+      }
+
+      function fecharModal() {
+        document.getElementById("modal-adicionar").style.display = "none";
+        document.getElementById("ingredientes-input").value = "";
+        pedidoSelecionadoId = null;
+      }
+
+      function salvarIngredientes() {
+        const ingredientes = document
+          .getElementById("ingredientes-input")
+          .value.trim();
+        if (ingredientes) {
+          const pedidos = JSON.parse(localStorage.getItem("pedidos") || "[]");
+
+          // Pega todos os IDs relacionados, pois pedidoSelecionadoId pode ser "Mesa X"
+          const idsToUpdate = getPedidosByAggregatedId(
+            pedidoSelecionadoId,
+            pedidos
+          );
+
+          // Encontra o índice do PRIMEIRO pedido pendente da mesa para adicionar o ingrediente
+          const index = pedidos.findIndex(
+            (p) =>
+              idsToUpdate.includes(p.id) &&
+              p.status !== "concluido" &&
+              p.status !== "cancelado"
+          );
+
+          if (index !== -1) {
+            // Atualiza o ingrediente no primeiro pedido pendente.
+            pedidos[index].ingredientesAdicionais = ingredientes;
+            localStorage.setItem("pedidos", JSON.stringify(pedidos));
+            carregarPedidos();
+            fecharModal();
+          } else if (idsToUpdate.length === 1 && !isNaN(idsToUpdate[0])) {
+            // Caso seja um pedido concluído/cancelado isolado que o garçom está re-editando
+            const singleIndex = pedidos.findIndex(
+              (p) => p.id === idsToUpdate[0]
+            );
+            if (singleIndex !== -1) {
+              pedidos[singleIndex].ingredientesAdicionais = ingredientes;
+              localStorage.setItem("pedidos", JSON.stringify(pedidos));
+              carregarPedidos();
+              fecharModal();
+            }
+          }
+        }
+      }
+
+      carregarPedidos();
+
+      // Reduzindo o intervalo de refresh para 3000ms para maior performance em cenários de produção.
+      setInterval(carregarPedidos, 3000);
+
+      window.addEventListener("storage", carregarPedidos);
+    </script>
+  </body>
+</html>
